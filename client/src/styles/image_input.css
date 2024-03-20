@@ -1,0 +1,31 @@
+.imageInput_wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 250px;
+    height: 300px;
+    background: #25282E;
+    border-radius: 20px;
+    box-shadow: 0 0 20px 0 rgba(45, 39, 34, 0.8);
+}
+
+.imageInput_text {
+    width: 50px;
+    height: 50px;
+}
+
+.imageInput_preview {
+    position: absolute;
+    border-radius: 20px;
+}
+
+.imageInput_input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}

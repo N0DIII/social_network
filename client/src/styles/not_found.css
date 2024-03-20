@@ -1,0 +1,12 @@
+.notFound_wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    font-size: 40px;
+    font-style: italic;
+}
