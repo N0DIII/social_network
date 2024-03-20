@@ -16,6 +16,7 @@ const ChangeUserData = require('./components/change_userdata.js').default;
 const Friends = require('./components/friends.js').default;
 const Album = require('./components/album.js').default;
 const Chat = require('./components/chat.js').default;
+const NotFound = require('./components/not_found.js').default;
 
 export default function App() {
     const [userData, setUserData] = useState(false);
@@ -35,15 +36,19 @@ export default function App() {
         <BrowserRouter>
             <div className='App'>
                 <Routes>
-                    <Route path='/registration' element={<Registration setUserData={setUserData}/>}/>
-                    <Route path='/login' element={<Login setUserData={setUserData}/>}/>
+                        <Route path='*' element={<NotFound/>}/>
+                        <Route path='/not_found' element={<NotFound/>}/>
 
-                    <Route path='/' element={<Main userData={userData}/>}/>
-                    <Route path='/profile/:id' element={<Profile userData={userData}/>}/>
-                    <Route path='/changeUserData/:id' element={<ChangeUserData userData={userData}/>}/>
-                    <Route path='/friends' element={<Friends userData={userData}/>}/>
-                    <Route path='/album/:id' element={<Album userData={userData}/>}/>
-                    <Route path='/chat/:id' element={<Chat userData={userData} socket={socket}/>}/>
+                        <Route path='/registration' element={<Registration setUserData={setUserData}/>}/>
+                        <Route path='/login' element={<Login setUserData={setUserData}/>}/>
+
+                        <Route path='/' element={<Main userData={userData}/>}/>
+                        <Route path='/profile/:id' element={<Profile userData={userData}/>}/>
+                        <Route path='/changeUserData/:id' element={<ChangeUserData userData={userData}/>}/>
+                        <Route path='/friends' element={<Friends userData={userData}/>}/>
+                        <Route path='/album/:id' element={<Album userData={userData}/>}/>
+                        <Route path='/chat/:id' element={<Chat userData={userData} socket={socket}/>}/>
+                    
                 </Routes>
             </div>
         </BrowserRouter>

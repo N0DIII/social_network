@@ -1,19 +1,15 @@
-const { useState } = require('react');
-
 require('../styles/error.css');
 
 const Button = require('./button.js').default;
 
 export default function Error(props) {
-    //const { show, setShow } = props;
-    const { func } = props;
+    const { params } = props;
 
     return(
-        <div className='error_wrapper'>
+        <div className='error_wrapper' style={params[0] ? {display: 'grid'} : {display: 'none'}}>
             <div className='error_block'>
                 Произошла ошибка Попробуйте позже
-                {func == undefined && <Button title='Закрыть' onclick={() => window.location.reload()}/>}
-                {func != undefined && <Button title='Закрыть' onclick={func}/>}
+                <Button title='Закрыть' onclick={() => params[1](false)}/>
             </div>
         </div>
     )

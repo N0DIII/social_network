@@ -12,6 +12,7 @@ const deleteImg = require('../images/delete.png');
 const RightMenu = require('./right_menu.js').default;
 const LeftMenu = require('./left_menu.js').default;
 const FullscreenImage = require('./fullscreen_image.js').default;
+const Error = require('./error.js').default;
 
 export default function Album(props) {
     const { userData } = props;
@@ -28,6 +29,7 @@ export default function Album(props) {
     const [selectImage, setSelectImage] = useState();
 
     const [update, setUpdate] = useState(0);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         if(!userData) return;
@@ -35,7 +37,7 @@ export default function Album(props) {
 
         server('/file/getAlbum', { id })
         .then(result => {
-            if(!result) return navigate(`/profile/${userData._id}`);
+            if(!result) return navigate('/not_found');
 
             setTitle(result.album.name);
             setUserID(result.album.userID);
@@ -58,6 +60,7 @@ export default function Album(props) {
                         setUpdate(update + 1);
                         e.target.value = null;
                     }
+                    else setError(true);
                 })
             }
 
@@ -78,6 +81,7 @@ export default function Album(props) {
                     e.target.src = editImg;
                     setTitleDisabled(true);
                 }
+                else setError(true);
             })
         }
     }
@@ -86,6 +90,7 @@ export default function Album(props) {
         server('/file/deletePhoto', { src })
         .then(result => {
             if(result) setUpdate(update + 1);
+            else setError(true);
         })
     }
 
@@ -93,6 +98,7 @@ export default function Album(props) {
         <div className='page'>
             {userData && <RightMenu id={userData._id} username={userData.username}/>}
             {userData && <LeftMenu id={userData._id}/>}
+            <Error params={[error, setError]}/>
 
             <div className='album_title'>
                 <input value={title} onChange={e => setTitle(e.target.value)} disabled={titleDisabled}/>

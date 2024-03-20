@@ -1,6 +1,7 @@
 const { useState, useEffect } = require('react');
 const { useNavigate, Link } = require('react-router-dom');
 const server = require('../server.js');
+const serverUrl = require('../server_url.js');
 
 require('../styles/friends.css');
 
@@ -87,7 +88,7 @@ export default function Friends(props) {
                 <div className='friends_block' style={showFriends ? {} : {height: 0}}>
                     {friends.map((item, i) => 
                         <Link className='friends_block_item' key={i} to={`/profile/${item._id}`}>
-                            <img src={`/users/${item._id}/avatar.png`}/>
+                            <img src={`${serverUrl}/users/${item._id}/avatar.png`}/>
                             <div className='friends_block_item_username'>{item.username}</div>
                         </Link>
                     )}
@@ -103,7 +104,7 @@ export default function Friends(props) {
                 <div className='friends_block' style={showUsers ? {} : {height: 0}}>
                     {users.map((item, i) => 
                         <Link className='friends_block_item' key={i} to={`/profile/${item._id}`}>
-                            <img src={`/users/${item._id}/avatar.png`}/>
+                            <img src={`${serverUrl}/users/${item._id}/avatar.png`}/>
                             <div className='friends_block_item_username'>{item.username}</div>
                         </Link>
                     )}

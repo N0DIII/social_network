@@ -13,6 +13,7 @@ const RightMenu = require('./right_menu.js').default;
 const LeftMenu = require('./left_menu.js').default;
 const Button = require('./button.js').default;
 const Input = require('./input.js').default;
+const Error = require('./error.js').default;
 
 export default function Profile(props) {
     const { userData } = props;
@@ -28,6 +29,7 @@ export default function Profile(props) {
     const [albumName, setAlbumName] = useState('');
 
     const [friendStatus, setFriendStatus] = useState(0);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         if(!userData) return;
@@ -35,7 +37,7 @@ export default function Profile(props) {
 
         server('/user/getUserData', { id, myId: userData._id })
         .then(result => {
-            if(!result) return navigate('/friends');
+            if(!result) return navigate('/not_found');
 
             setUsername(result.user.username);
             if(result.user.birthday) setBirthday(getAge(result.user.birthday.split('T')[0]));
@@ -71,6 +73,7 @@ export default function Profile(props) {
                 setAlbums([...albums, result]);
                 setShowAddAlbum(false);
             }
+            else setError(true);
         })
     }
 
@@ -83,6 +86,7 @@ export default function Profile(props) {
                     setAlbums(result);
                 })
             }
+            else setError(true);
         })
     }
 
@@ -90,6 +94,7 @@ export default function Profile(props) {
         server('/chat/createChat', { userID1: userData._id, userID2: id})
         .then(result => {
             if(result) navigate(`/chat/${result._id}`);
+            else setError(true);
         })
     }
 
@@ -97,6 +102,7 @@ export default function Profile(props) {
         <div className='page'>
             {userData && <RightMenu id={userData._id} username={userData.username}/>}
             {userData && <LeftMenu id={userData._id}/>}
+            <Error params={[error, setError]}/>
 
             <div className='profile_userdata'>
                 <img className='profile_avatar' src={`${serverUrl}/users/${id}/avatar.png`}/>

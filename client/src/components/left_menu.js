@@ -1,6 +1,7 @@
 const { useState, useEffect } = require('react');
 const { Link } = require('react-router-dom');
 const server = require('../server');
+const serverUrl = require('../server_url.js');
 
 require('../styles/sidemenu.css');
 
@@ -30,7 +31,7 @@ export default function LeftMenu(props) {
             <div className='sidemenu_items'>
                 {chats.map((chat, i) => 
                     <Link className='sidemenu_item' key={i} to={`/chat/${chat._id}`}>
-                        <img className='sidemenu_item_avatar' src={`/users/${chat.avatar}/avatar.png`}/>
+                        <img className='sidemenu_item_avatar' src={`${serverUrl}/users/${chat.avatar}/avatar.png`}/>
                         <div className='sidemenu_item_name'>{chat.name}</div>
                     </Link>
                 )}

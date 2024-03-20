@@ -7,6 +7,12 @@
     display: grid;
     justify-items: center;
     align-items: center;
+    align-content: center;
+    gap: 60px;
     font-size: 40px;
     font-style: italic;
+}
+
+.notFound_button {
+    width: 30%;
 }

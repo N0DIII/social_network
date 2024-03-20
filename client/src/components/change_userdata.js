@@ -1,6 +1,7 @@
 const { useEffect, useState } = require('react');
 const { useNavigate, useParams } = require('react-router-dom');
 const server = require('../server.js');
+const serverUrl = require('../server_url.js');
 
 require('../styles/change_userdata.css')
 
@@ -10,6 +11,7 @@ const LoadAvatar = require('./load_avatar.js').default;
 const Input = require('./input.js').default;
 const Select = require('./select.js').default;
 const Button = require('./button.js').default;
+const Error = require('./error.js').default;
 
 export default function ChangeUserData(props) {
     const { userData } = props;
@@ -23,6 +25,7 @@ export default function ChangeUserData(props) {
     const [sex, setSex] = useState();
 
     const [errorUsername, setErrorUsername] = useState();
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         if(!userData) return;
@@ -39,7 +42,8 @@ export default function ChangeUserData(props) {
         server('/user/changeUserData', {id: userData._id, avatar, username: username == userData.username ? false : username, birthday, sex})
         .then(result => {
             if(result.field == 0) setErrorUsername(result.message);
-            else window.location.reload();
+            else if(result) window.location.reload();
+            else setError(true);
         })
     }
 
@@ -47,10 +51,11 @@ export default function ChangeUserData(props) {
         <div className='page'>
             {userData && <RightMenu id={userData._id} username={userData.username}/>}
             {userData && <LeftMenu id={userData._id}/>}
+            <Error params={[error, setError]}/>
 
             <div className='changeUserData_wrapper'>
                 <div className='changeUserData_avatar'>
-                    <LoadAvatar src={`/users/${id}/avatar.png`} setAvatarUrl={setAvatar}/>
+                    <LoadAvatar src={`${serverUrl}/users/${id}/avatar.png`} setAvatarUrl={setAvatar}/>
                 </div>
 
                 <div className='changeUserData_inputs'>
