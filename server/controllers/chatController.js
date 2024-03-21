@@ -27,8 +27,8 @@ class chatController {
                 if(chats[i].name == '') {
                     for(let j = 0; j < chats[i].users.length; j++) {
                         if(chats[i].users[j].toString() != id) {
-                            const name = await User.findOne({_id: chats[i].users[j]}, {username: 1});
-                            chats[i] = { _id: chats[i]._id, name: name.username, avatar: chats[i].users[j] };
+                            const chat = await User.findOne({_id: chats[i].users[j]}, {username: 1, online: 1});
+                            chats[i] = { _id: chats[i]._id, name: chat.username, avatar: chats[i].users[j], online: chat.online };
                             break;
                         }
                     }

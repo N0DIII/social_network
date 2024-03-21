@@ -69,9 +69,24 @@
 }
 
 .sidemenu_item_avatar {
+    position: relative;
     height: 100%;
-    padding: 5px;
+}
+
+.sidemenu_item_avatar > img {
+    height: 100%;
+    padding: 8px;
     border-radius: 50%;
+}
+
+.sidemenu_item_avatar_status {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: green;
 }
 
 .sidemenu_item_name {

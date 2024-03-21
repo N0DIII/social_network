@@ -1,4 +1,5 @@
 const { Server } = require('socket.io');
+const User = require('./models/User');
 
 const io = new Server({
     cors: {
@@ -9,9 +10,11 @@ const io = new Server({
 io.listen(4000);
 
 io.on('connection', socket => {
-    console.log(socket.id)
+    socket.on('online', async ({ id }) => {
+        await User.updateOne({_id: id}, {online: true});
 
-    socket.on('disconnect', async () => {
-        console.log('disconnect');
+        socket.on('disconnect', async () => {
+            await User.updateOne({_id: id}, {online: false});
+        })
     })
 })

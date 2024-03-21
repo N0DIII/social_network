@@ -24,6 +24,7 @@ export default function App() {
     useEffect(() => {
         auth().then(result => {
             setUserData(result);
+            if(result._id != undefined) socket.emit('online', { id: result._id });
         })
     }, [])
 

@@ -17,6 +17,7 @@ export default function LeftMenu(props) {
         server('/chat/getChats', { id })
         .then(result => {
             setChats(result);
+            console.log(result)
         })
     }, [])
 
@@ -31,7 +32,10 @@ export default function LeftMenu(props) {
             <div className='sidemenu_items'>
                 {chats.map((chat, i) => 
                     <Link className='sidemenu_item' key={i} to={`/chat/${chat._id}`}>
-                        <img className='sidemenu_item_avatar' src={`${serverUrl}/users/${chat.avatar}/avatar.png`}/>
+                        <div className='sidemenu_item_avatar'>
+                            <img src={`${serverUrl}/users/${chat.avatar}/avatar.png`}/>
+                            {chat.online && <div className='sidemenu_item_avatar_status'></div>}
+                        </div>
                         <div className='sidemenu_item_name'>{chat.name}</div>
                     </Link>
                 )}

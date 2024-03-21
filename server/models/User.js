@@ -7,7 +7,8 @@ const User = new Schema({
     birthday: {type: Date},
     rooms: [{type: ObjectId, ref: 'Room'}],
     friends: [{type: ObjectId, ref: 'User'}],
-    friend_requests: [{type: ObjectId, ref: 'User'}]
+    friend_requests: [{type: ObjectId, ref: 'User'}],
+    online: {type: Boolean}
 })
 
 module.exports = model('User', User);
