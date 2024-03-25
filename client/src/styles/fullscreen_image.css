@@ -1,5 +1,5 @@
 .fullscreenImage_wrapper {
-    position: absolute;
+    position: fixed;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7,18 +7,24 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 1002;
+    z-index: 3500;
 }
 
-.fullscreenImage_next, .fullscreenImage_previous {
+.fullscreenImage_next:hover, .fullscreenImage_previous:hover, .fullscreenImage_close:hover {
     cursor: pointer;
+    transform: scale(1.05);
 }
 
 .fullscreenImage_image {
-    width: 80%;
-    height: 80%;
+    width: 90%;
+    height: 90%;
     object-fit: contain;
     border-radius: 20px;
-    background: #25282E;
-    box-shadow: 0 0 20px 0 rgba(45, 39, 34, 0.8);
+    background: #1a1c20;
+}
+
+.fullscreenImage_close {
+    position: absolute;
+    right: 0;
+    top: 0;
 }

@@ -45,8 +45,37 @@ input::placeholder{color: #949AAF}
 }
 
 .page {
-    width: calc(100% - 23.1vw * 2);
-    height: 100%;
-    margin: 0 23.1vw;
+    position: relative;
+    height: calc(100vh - 75px);
+    margin-right: 23.1vw;
+    margin-left: 23.1vw;
+    margin-top: 75px;
     overflow-y: scroll;
+    transition: all 0.5s ease-in-out;
+}
+
+.closeRightMenu {
+    margin-right: 0;
+    padding-right: 15vw;
+}
+
+.closeLeftMenu {
+    margin-left: 0;
+    padding-left: 15vw;
+}
+
+.page_title {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: grid;
+    align-items: center;
+    width: calc(100vw - 23.1vw * 2);
+    height: 70px;
+    margin: 0 23.1vw;
+}
+
+.page_noTitle {
+    margin-top: 0;
+    height: 100vh;
 }

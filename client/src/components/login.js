@@ -36,7 +36,7 @@ export default function Login(props) {
 
                 auth().then(result => {
                     setUserData(result);
-                    navigate('/');
+                    window.location.assign('/');
                 })
             }
         })

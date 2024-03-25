@@ -1,26 +1,37 @@
-const { useState } = require('react');
-const { useNavigate, Link } = require('react-router-dom');
+const { useEffect, useState } = require('react');
+const { Link } = require('react-router-dom');
 const serverUrl = require('../server_url.js');
 
 require('../styles/sidemenu.css');
 
 export default function RightMenu(props) {
     const { id, username } = props;
-    const navigate = useNavigate();
 
     const [style, setStyle] = useState({right: '0'});
 
+    useEffect(() => {
+        if(localStorage.getItem('closeRightMenu') == '1') setStyle({right: '-22.9vw'});
+    }, [])
+
     function closeMenu() {
-        if(style.right == '0') setStyle({right: '-22.9vw'});
-        else setStyle({right: '0'});
+        if(style.right == '0') {
+            setStyle({right: '-22.9vw'});
+            localStorage.setItem('closeRightMenu', '1');
+            document.querySelector('.page').classList.add('closeRightMenu');
+        }
+        else {
+            setStyle({right: '0'});
+            localStorage.setItem('closeRightMenu', '0');
+            document.querySelector('.page').classList.remove('closeRightMenu');
+        }
     }
 
     function signOut() {
         localStorage.setItem('token', '');
-        navigate('/login');
+        window.location.assign('/login');
     }
 
-    return(
+    if(id != undefined) return(
         <div className='sidemenu_wrapper rightmenu' style={style}>
             <div className='sidemenu_userdata' onClick={closeMenu}>
                 <img className='sidemenu_userdata_avatar' src={`${serverUrl}/users/${id}/avatar.png`}/>

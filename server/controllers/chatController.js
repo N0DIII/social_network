@@ -1,5 +1,6 @@
 const Chat = require('../models/Chat');
 const User = require('../models/User');
+const fs = require('fs');
 
 class chatController {
     async createChat(req, res) {
@@ -8,6 +9,9 @@ class chatController {
 
             const chat = new Chat({name: '', users: [userID1, userID2]});
             chat.save();
+
+            const src = `./public/chats/${chat._id}`;
+            fs.mkdir(src, e => {if(e) console.log(e)});
 
             res.json(chat);
         }

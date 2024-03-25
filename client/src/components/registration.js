@@ -45,7 +45,7 @@ export default function Registration(props) {
 
                 auth().then(result => {
                     setUserData(result);
-                    navigate('/');
+                    window.location.assign('/');
                 })
             }
         })

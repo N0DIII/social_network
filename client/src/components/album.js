@@ -9,8 +9,6 @@ const editImg = require('../images/pen.png');
 const saveImg = require('../images/checkMark.png');
 const deleteImg = require('../images/delete.png');
 
-const RightMenu = require('./right_menu.js').default;
-const LeftMenu = require('./left_menu.js').default;
 const FullscreenImage = require('./fullscreen_image.js').default;
 const Error = require('./error.js').default;
 
@@ -34,6 +32,8 @@ export default function Album(props) {
     useEffect(() => {
         if(!userData) return;
         if(!userData._id) return navigate('/login');
+        if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
+        if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
         server('/file/getAlbum', { id })
         .then(result => {
@@ -96,30 +96,34 @@ export default function Album(props) {
 
     return(
         <div className='page'>
-            {userData && <RightMenu id={userData._id} username={userData.username}/>}
-            {userData && <LeftMenu id={userData._id}/>}
             <Error params={[error, setError]}/>
 
-            <div className='album_title'>
-                <input value={title} onChange={e => setTitle(e.target.value)} disabled={titleDisabled}/>
-                {userData._id == userID && <img className='album_title_changeName' src={editImg} onClick={changeName}/>}
-                {userData._id == userID &&
-                <div className='album_input_wrapper'>
-                    <div className='album_input_text'>Загрузить фото</div>
-                    <input type='file' className='album_input' accept='image/*' onChange={loadPhoto}/>
-                    <div className='album_input_back1'></div>
-                    <div className='album_input_back2'></div>
-                </div>}
+            <div className='page_title'>
+                <div className='album_title'>
+                    <input value={title} onChange={e => setTitle(e.target.value)} disabled={titleDisabled}/>
+                    {userData._id == userID && <img className='album_title_changeName' src={editImg} onClick={changeName}/>}
+                    {userData._id == userID &&
+                    <div className='album_input_wrapper'>
+                        <div className='album_input_text'>Загрузить фото или видео</div>
+                        <input type='file' className='album_input' accept='image/*, video/*' onChange={loadPhoto}/>
+                        <div className='album_input_back1'></div>
+                        <div className='album_input_back2'></div>
+                    </div>}
+                </div>
             </div>
+
             <div className='album_photos'>
                 {photos.map((photo, i) => 
                     <div className='album_photo_wrapper' key={i}>
                         {userData._id == userID && <img className='album_photo_delete' src={deleteImg} onClick={() => deletePhoto(photo)}/>}
-                        <img className='album_photo' src={serverUrl + photo} onClick={() => {setSelectImage(photo); setShowFullscreenImage(!showFullscreenImage)}}/>
+                        {(photo.split('_')[1]).split('.')[0] == 'image' &&
+                        <img className='album_photo' src={serverUrl + photo} onClick={() => {setSelectImage(photo); setShowFullscreenImage(!showFullscreenImage)}}/>}
+                        {(photo.split('_')[1]).split('.')[0] == 'video' &&
+                        <video className='album_photo' src={serverUrl + photo} onClick={() => {setSelectImage(photo); setShowFullscreenImage(!showFullscreenImage)}}/>}
                     </div>
                 )}
             </div>
-            {showFullscreenImage && <FullscreenImage selectImage={selectImage} images={photos}/>}
+            {showFullscreenImage && <FullscreenImage selectImage={selectImage} images={photos} setShow={setShowFullscreenImage}/>}
         </div>
     )
 }

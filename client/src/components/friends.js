@@ -5,10 +5,6 @@ const serverUrl = require('../server_url.js');
 
 require('../styles/friends.css');
 
-const arrowImg = require('../images/arrowDown1.png');
-
-const RightMenu = require('./right_menu.js').default;
-const LeftMenu = require('./left_menu.js').default;
 const Search = require('./search.js').default;
 
 export default function Friends(props) {
@@ -16,36 +12,19 @@ export default function Friends(props) {
     const navigate = useNavigate();
 
     const [search, setSearch] = useState('');
-    const [friends, setFriends] = useState([]);
-    const [users, setUsers] = useState([]);
-
-    const [showFriends, setShowFriends] = useState(true);
-    const [showUsers, setShowUsers] = useState(true);
+    const [items, setItems] = useState([]);
 
     const [count, setCount] = useState(0);
+    const [page, setPage] = useState('friends');
 
     useEffect(() => {
         if(!userData) return;
         if(!userData._id) return navigate('/login');
+        if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
+        if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
-        setFriends([]);
-        server('/user/getFriends', {id: userData._id, search})
-        .then(result => {
-            setFriends(result);
-        })
-
-        setUsers([]);
-        setCount(0);
-        getUsers();
-    }, [userData, search])
-
-    function getUsers() {
-        server('/user/getUsers', {id: userData._id, count, search})
-        .then(result => {
-            setUsers(users => [...users, ...result]);
-            if(result.length != 0) setCount(count + 1);
-        })
-    }
+        getItems(false);
+    }, [userData, search, page])
 
     function scroll(e) {
         const scrollTop = e.target.scrollTop;
@@ -54,7 +33,7 @@ export default function Friends(props) {
         const dif = scrollHeight / 4;
 
         if(scrollTop + clientHeight >= scrollHeight - dif) {
-            getUsers();
+            getItems(true);
         }
     }
 
@@ -72,44 +51,78 @@ export default function Friends(props) {
         }
     }
 
+    async function getItems(add) {
+        if(!add) setCount(0);
+
+        switch(page) {
+            case 'friends': 
+                let friends = await getFriends();
+                if(add) setItems([...items, ...friends]);
+                else setItems(friends);
+                break;
+            case 'requests': 
+                let requests = await getRequests();
+                if(add) setItems([...items, ...requests]);
+                else setItems(requests);
+                break;
+            case 'users': 
+                let users = await getUsers();
+                if(add) setItems([...items, ...users]);
+                else setItems(users);
+                break;
+        }
+    }
+    
+    async function getFriends() {
+        return server('/user/getFriends', {id: userData._id, count, search})
+        .then(result => {
+            if(result.length != 0) setCount(count + 1);
+            return result;
+        })
+    }
+
+    async function getRequests() {
+        return server('/user/getRequests', {id: userData._id, count, search})
+        .then(result => {
+            if(result.length != 0) setCount(count + 1);
+            return result;
+        })
+    }
+
+    async function getUsers() {
+        return server('/user/getUsers', {id: userData._id, count, search})
+        .then(result => {
+            if(result.length != 0) setCount(count + 1);
+            return result;
+        })
+    }
+
     return(
         <div className='page' onScroll={throttle(scroll, 250)} onResize={throttle(scroll, 250)}>
-            {userData && <RightMenu id={userData._id} username={userData.username}/>}
-            {userData && <LeftMenu id={userData._id}/>}
+            <div className='page_title'>
+                <Search setValue={setSearch}/>
+            </div>
 
             <div className='friends_wrapper'>
-                <Search setValue={setSearch}/>
 
-                <div className='friends_separator' onClick={() => setShowFriends(!showFriends)}>
-                    Мои друзья
-                    <img src={arrowImg} style={showFriends ? {transform: 'rotate(180deg)'} : {}}/>
+                <div className='friends_navigate_wrapper'>
+                    <div className='friends_navigate_item' onClick={() => {setPage('friends'); setCount(0)}} style={page == 'friends' ? {borderBottom: '3px solid #8551FF'} : {}}>Друзья</div>
+                    <div className='friends_navigate_item' onClick={() => {setPage('requests'); setCount(0)}} style={page == 'requests' ? {borderBottom: '3px solid #8551FF'} : {}}>Приглашения</div>
+                    <div className='friends_navigate_item' onClick={() => {setPage('users'); setCount(0)}} style={page == 'users' ? {borderBottom: '3px solid #8551FF'} : {}}>Все пользователи</div>
                 </div>
 
-                <div className='friends_block' style={showFriends ? {} : {height: 0}}>
-                    {friends.map((item, i) => 
+                <div className='friends_block'>
+                    {items.map((item, i) => 
                         <Link className='friends_block_item' key={i} to={`/profile/${item._id}`}>
-                            <img src={`${serverUrl}/users/${item._id}/avatar.png`}/>
+                            <div className='friends_block_item_avatar'>
+                                <img src={`${serverUrl}/users/${item._id}/avatar.png`}/>
+                                {item.online && <div className='friends_block_item_avatar_status'></div>}
+                            </div>
                             <div className='friends_block_item_username'>{item.username}</div>
                         </Link>
                     )}
 
-                    {friends.length == 0 && <div className='friends_block_noResult'>Нет результатов</div>}
-                </div>
-
-                <div className='friends_separator' onClick={() => setShowUsers(!showUsers)}>
-                    Все пользователи
-                    <img src={arrowImg} style={showUsers ? {transform: 'rotate(180deg)'} : {}}/>
-                </div>
-
-                <div className='friends_block' style={showUsers ? {} : {height: 0}}>
-                    {users.map((item, i) => 
-                        <Link className='friends_block_item' key={i} to={`/profile/${item._id}`}>
-                            <img src={`${serverUrl}/users/${item._id}/avatar.png`}/>
-                            <div className='friends_block_item_username'>{item.username}</div>
-                        </Link>
-                    )}
-
-                    {users.length == 0 && <div className='friends_block_noResult'>Нет результатов</div>}
+                    {items.length == 0 && <div className='friends_block_noResult'>Нет результатов</div>}
                 </div>
             </div>
         </div>

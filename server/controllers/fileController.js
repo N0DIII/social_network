@@ -1,6 +1,5 @@
 const Album = require('../models/Album');
 const fs = require('fs');
-const str_rand = require('../str_rand');
 
 class fileController {
     async addAlbum(req, res) {
@@ -95,8 +94,12 @@ class fileController {
         try {
             const { albumID, userID, data } = req.body;
 
-            const buff = new Buffer.from(data.split(',')[1], 'base64').toString('binary');
-            fs.writeFile(`./public/users/${userID}/albums/${albumID}/${Date.now()}.jpg`, buff, 'binary', e => {if(e) console.log(e)});
+            const buff = new Buffer.from(data.split(',')[1], 'base64').toString('binary'); // data:video/mp4;base64
+
+            const meta = data.split(',')[0];
+            const type = '_' + (meta.split(':')[1]).split('/')[0] + '.' + (meta.split('/')[1]).split(';')[0];
+
+            fs.writeFile(`./public/users/${userID}/albums/${albumID}/${Date.now()}${type}`, buff, 'binary', e => {if(e) console.log(e)});
 
             res.json(true);
         }

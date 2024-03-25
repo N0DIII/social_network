@@ -5,8 +5,6 @@ const serverUrl = require('../server_url.js');
 
 require('../styles/change_userdata.css')
 
-const RightMenu = require('./right_menu.js').default;
-const LeftMenu = require('./left_menu.js').default;
 const LoadAvatar = require('./load_avatar.js').default;
 const Input = require('./input.js').default;
 const Select = require('./select.js').default;
@@ -30,6 +28,8 @@ export default function ChangeUserData(props) {
     useEffect(() => {
         if(!userData) return;
         if(!userData._id) return navigate('/login');
+        if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
+        if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
         if(userData._id != id) return navigate('/');
 
@@ -48,9 +48,7 @@ export default function ChangeUserData(props) {
     }
 
     return(
-        <div className='page'>
-            {userData && <RightMenu id={userData._id} username={userData.username}/>}
-            {userData && <LeftMenu id={userData._id}/>}
+        <div className='page page_noTitle'>
             <Error params={[error, setError]}/>
 
             <div className='changeUserData_wrapper'>

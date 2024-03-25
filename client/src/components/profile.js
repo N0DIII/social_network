@@ -9,8 +9,6 @@ const plusImg = require('../images/plus.png');
 const crossImg = require('../images/cross.png');
 const deleteImg = require('../images/delete.png');
 
-const RightMenu = require('./right_menu.js').default;
-const LeftMenu = require('./left_menu.js').default;
 const Button = require('./button.js').default;
 const Input = require('./input.js').default;
 const Error = require('./error.js').default;
@@ -34,6 +32,8 @@ export default function Profile(props) {
     useEffect(() => {
         if(!userData) return;
         if(!userData._id) return navigate('/login');
+        if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
+        if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
         server('/user/getUserData', { id, myId: userData._id })
         .then(result => {
@@ -99,9 +99,7 @@ export default function Profile(props) {
     }
 
     return(
-        <div className='page'>
-            {userData && <RightMenu id={userData._id} username={userData.username}/>}
-            {userData && <LeftMenu id={userData._id}/>}
+        <div className='page page_noTitle'>
             <Error params={[error, setError]}/>
 
             <div className='profile_userdata'>

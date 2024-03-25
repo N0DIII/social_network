@@ -28,9 +28,9 @@ class authController {
             const user = new User({username, password: hashPassword});
             await user.save();
 
-            await fs.mkdir(`./client/public/users/${user._id}`, e => {if(e) console.log(e)});
-            await fs.mkdir(`./client/public/users/${user._id}/albums`, e => {if(e) console.log(e)});
-            await fs.copyFile('./client/src/images/defaultAvatar.png', `./client/public/users/${user._id}/avatar.png`, e => {if(e) console.log(e)});
+            await fs.mkdir(`./public/users/${user._id}`, e => {if(e) console.log(e)});
+            await fs.mkdir(`./public/users/${user._id}/albums`, e => {if(e) console.log(e)});
+            await fs.copyFile('./public/src/defaultAvatar.png', `./public/users/${user._id}/avatar.png`, e => {if(e) console.log(e)});
 
             const token = generateAccessToken(user._id);
             return res.json({token});

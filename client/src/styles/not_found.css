@@ -11,6 +11,8 @@
     gap: 60px;
     font-size: 40px;
     font-style: italic;
+    background: linear-gradient(70deg, #2D2722, #22292D);
+    z-index: 4000;
 }
 
 .notFound_button {

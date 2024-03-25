@@ -5,7 +5,8 @@ const Message = new Schema({
     chat: {type: ObjectId, ref: 'Chat'},
     user: {type: ObjectId, ref: 'User'},
     created: {type: Date},
-    edit: {type: Boolean}
+    edit: {type: Boolean},
+    type: {type: String}
 })
 
 module.exports = model('Message', Message);

@@ -40,10 +40,25 @@
     border-radius: 20px;
 }
 
-.friends_block_item > img {
+.friends_block_item_avatar {
+    position: relative;
+    height: 100%;
+}
+
+.friends_block_item_avatar > img {
     height: 100%;
     padding: 15px;
     border-radius: 50%;
+}
+
+.friends_block_item_avatar_status {
+    position: absolute;
+    bottom: 18px;
+    right: 15px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: green;
 }
 
 .friends_block_item:hover {
@@ -57,4 +72,20 @@
     color: #949AAF;
     font-style: italic;
     text-align: center;
+    padding: 40px 0;
+}
+
+.friends_navigate_wrapper {
+    display: flex;
+    width: 100%;
+    padding: 20px 0 10px 0;
+}
+
+.friends_navigate_item {
+    padding: 0 8px 8px 8px;
+}
+
+.friends_navigate_item:hover {
+    cursor: pointer;
+    border-bottom: 3px solid #8551FF;
 }

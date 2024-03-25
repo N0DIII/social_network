@@ -8,6 +8,8 @@ const url = require('./server_url.js');
 
 require('./styles/index.css');
 
+const RightMenu = require('./components/right_menu.js').default;
+const LeftMenu = require('./components/left_menu.js').default;
 const Registration = require('./components/registration.js').default;
 const Login = require('./components/login.js').default;
 const Main = require('./components/main.js').default;
@@ -36,20 +38,21 @@ export default function App() {
     return(
         <BrowserRouter>
             <div className='App'>
+                {userData && <RightMenu id={userData._id} username={userData.username}/>}
+                {userData && <LeftMenu id={userData._id} socket={socket}/>}
                 <Routes>
-                        <Route path='*' element={<NotFound/>}/>
-                        <Route path='/not_found' element={<NotFound/>}/>
+                    <Route path='*' element={<NotFound/>}/>
+                    <Route path='/not_found' element={<NotFound/>}/>
 
-                        <Route path='/registration' element={<Registration setUserData={setUserData}/>}/>
-                        <Route path='/login' element={<Login setUserData={setUserData}/>}/>
+                    <Route path='/registration' element={<Registration setUserData={setUserData}/>}/>
+                    <Route path='/login' element={<Login setUserData={setUserData}/>}/>
 
-                        <Route path='/' element={<Main userData={userData}/>}/>
-                        <Route path='/profile/:id' element={<Profile userData={userData}/>}/>
-                        <Route path='/changeUserData/:id' element={<ChangeUserData userData={userData}/>}/>
-                        <Route path='/friends' element={<Friends userData={userData}/>}/>
-                        <Route path='/album/:id' element={<Album userData={userData}/>}/>
-                        <Route path='/chat/:id' element={<Chat userData={userData} socket={socket}/>}/>
-                    
+                    <Route path='/' element={<Main userData={userData} socket={socket}/>}/>
+                    <Route path='/profile/:id' element={<Profile userData={userData} socket={socket}/>}/>
+                    <Route path='/changeUserData/:id' element={<ChangeUserData userData={userData} socket={socket}/>}/>
+                    <Route path='/friends' element={<Friends userData={userData} socket={socket}/>}/>
+                    <Route path='/album/:id' element={<Album userData={userData} socket={socket}/>}/>
+                    <Route path='/chat/:id' element={<Chat userData={userData} socket={socket}/>}/>
                 </Routes>
             </div>
         </BrowserRouter>

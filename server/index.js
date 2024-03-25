@@ -12,7 +12,7 @@ require('./socket');
 const app = express();
 
 app.use(cors({origin: '*'}));
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.json({limit: '500mb'}));
 app.use(express.static('public'));
 app.use(express.json());
 app.use('/auth', authRouter);

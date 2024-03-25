@@ -58,7 +58,7 @@ class userController {
         try {
             const { id, count, search } = req.body;
 
-            const users = await User.find({_id: {$ne: id}, friends: {$nin: id}, username: {$regex: search}}, {_id: 1, username: 1}).skip(count * 10).limit(10);
+            const users = await User.find({_id: {$ne: id}, username: {$regex: search}}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
 
             res.json(users);
         }
@@ -70,11 +70,26 @@ class userController {
 
     async getFriends(req, res) {
         try {
-            const { id, search } = req.body;
+            const { id, count, search } = req.body;
 
-            const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}}, {_id: 1, username: 1});
+            const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}}, {_id: 1, username: 1}).skip(count * 10).limit(10);
 
             res.json(friends);
+        }
+        catch(e) {
+            console.log(e);
+            res.json(false);
+        }
+    }
+
+    async getRequests(req, res) {
+        try {
+            const { id, count, search } = req.body;
+
+            const me = await User.findOne({_id: id}, {friend_requests: 1});
+            const requests = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}}, {_id: 1, username: 1}).skip(count * 10).limit(10);
+
+            res.json(requests);
         }
         catch(e) {
             console.log(e);
