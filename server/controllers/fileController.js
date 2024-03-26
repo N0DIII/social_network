@@ -6,11 +6,15 @@ class fileController {
         try {
             const { id, name } = req.body;
 
-            const album = new Album({name: name == '' ? 'Без названия' : name, userID: id});
-            album.save();
+            const album = new Album({name: name == '' ? 'Без названия' : name, user: id});
 
             const src = `./public/users/${id}/albums/${album._id}`;
-            fs.mkdir(src, e => {if(e) console.log(e)});
+            fs.mkdir(src, e => {if(e) {
+                console.log(e);
+                return res.json(false);
+            }})
+
+            album.save();
 
             res.json(album);
         }
@@ -53,12 +57,12 @@ class fileController {
         try {
             const { id } = req.body;
 
-            let albums = await Album.find({userID: id});
+            let albums = await Album.find({user: id});
             
             for(let i = 0; i < albums.length; i++) {
                 const files = fs.readdirSync(`./public/users/${id}/albums/${albums[i]._id}`);
                 if(files.length != 0) {
-                    let album = {_id: albums[i]._id, name: albums[i].name, userID: albums[i].userID, cover: `/users/${id}/albums/${albums[i]._id}/${files[0]}`};
+                    let album = {_id: albums[i]._id, name: albums[i].name, user: albums[i].user, cover: `/users/${id}/albums/${albums[i]._id}/${files[0]}`};
                     albums[i] = album;
                 }
             }
@@ -78,9 +82,9 @@ class fileController {
             const album = await Album.findOne({_id: id});
             if(album == null) return res.json(false);
 
-            const files = fs.readdirSync(`./public/users/${album.userID}/albums/${id}`);
+            const files = fs.readdirSync(`./public/users/${album.user}/albums/${id}`);
             let photos = [];
-            files.forEach(el => photos.push(`/users/${album.userID}/albums/${id}/${el}`));
+            files.forEach(el => photos.push(`/users/${album.user}/albums/${id}/${el}`));
 
             res.json({ album, photos });
         }

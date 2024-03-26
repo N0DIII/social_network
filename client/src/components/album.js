@@ -40,7 +40,7 @@ export default function Album(props) {
             if(!result) return navigate('/not_found');
 
             setTitle(result.album.name);
-            setUserID(result.album.userID);
+            setUserID(result.album.user);
             setPhotos(result.photos);
         })
 

@@ -35,7 +35,7 @@ export default function Profile(props) {
         if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
         if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
-        server('/user/getUserData', { id, myId: userData._id })
+        server('/user/getUserData', { id: id, myId: userData._id })
         .then(result => {
             if(!result) return navigate('/not_found');
 
@@ -44,7 +44,7 @@ export default function Profile(props) {
             setFriendStatus(result.isFriend);
         })
 
-        server('/file/getAlbums', { id })
+        server('/file/getAlbums', { id: id })
         .then(result => {
             setAlbums(result);
         })
@@ -60,14 +60,14 @@ export default function Profile(props) {
     }
 
     function reqFriend(req) {
-        server(req, {id, myId: userData._id})
+        server(req, {id: id, myId: userData._id})
         .then(result => {
             if(result) setFriendStatus(result.status);
         })
     }
 
     function addAlbum() {
-        server('/file/addAlbum', { id, name: albumName })
+        server('/file/addAlbum', { id: id, name: albumName })
         .then(result => {
             if(result) {
                 setAlbums([...albums, result]);

@@ -40,7 +40,7 @@ input::placeholder{color: #949AAF}
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(70deg, #2D2722, #22292D);
+    background: linear-gradient(40deg, #2D2722, #191C24);
     overflow: hidden;
 }
 
@@ -70,6 +70,7 @@ input::placeholder{color: #949AAF}
     left: 0;
     display: grid;
     align-items: center;
+    justify-items: center;
     width: calc(100vw - 23.1vw * 2);
     height: 70px;
     margin: 0 23.1vw;

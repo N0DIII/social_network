@@ -5,10 +5,10 @@ const User = new Schema({
     password: {type: String, required: true},
     sex: {type: String, ref: 'Sex'},
     birthday: {type: Date},
-    rooms: [{type: ObjectId, ref: 'Room'}],
     friends: [{type: ObjectId, ref: 'User'}],
     friend_requests: [{type: ObjectId, ref: 'User'}],
-    online: {type: Boolean}
+    online: {type: Boolean},
+    last_online: {type: Date}
 })
 
 module.exports = model('User', User);
