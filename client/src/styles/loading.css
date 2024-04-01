@@ -1,0 +1,19 @@
+.loading_wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    animation-name: loading;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0.1, 0.7, 1, 1);
+    animation-direction: alternate;
+}
+
+@keyframes loading {
+    from {
+        background: #212429;
+    }
+    to {
+        background: #191C24;
+    }
+}

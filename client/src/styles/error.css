@@ -1,4 +1,4 @@
-.error_wrapper {
+.error_wrapper, .serverError_wrapper {
     position: fixed;
     top: 0;
     left: 0;
@@ -10,7 +10,7 @@
     z-index: 2000;
 }
 
-.error_block {
+.error_block, .serverError_block {
     display: grid;
     justify-items: center;
     align-items: center;

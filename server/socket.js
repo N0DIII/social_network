@@ -15,6 +15,7 @@ io.listen(4000);
 io.on('connection', socket => {
     socket.on('online', async ({ id }) => {
         await User.updateOne({_id: id}, {online: true});
+        socket.join(id);
 
         const chats = await Chat.find({users: {$in: id}}, {_id: 1});
         chats.forEach(chat => {
@@ -31,9 +32,14 @@ io.on('connection', socket => {
     })
 
     socket.on('getMessages', async ({ id }) => {
-        const chat = await Chat.findOne({_id: id}, {_id: 1});
-        const messages = await Message.find({chat: id}, {chat: 0}).sort({$natural: -1});
-        socket.emit('getMessages', { messages, chat });
+        try {
+            const chat = await Chat.findOne({_id: id}, {_id: 1});
+            const messages = await Message.find({chat: id}, {chat: 0}).sort({$natural: -1});
+            socket.emit('getMessages', { messages, chat });
+        }
+        catch(e) {
+            socket.emit('getMessages', false);
+        }
     })
 
     socket.on('sendMessage', async ({ user, chat, text }) => {
@@ -43,8 +49,11 @@ io.on('connection', socket => {
         io.to(chat).emit('getMessage', message);
     })
 
-    socket.on('deleteMessage', async ({ message, chat }) => {
+    socket.on('deleteMessage', async ({ message, chat, filename }) => {
         await Message.deleteOne({_id: message});
+
+        if(filename) fs.unlink(`public/chats/${chat}/${filename}`, e => {if(e) console.log(e)});
+
         io.to(chat).emit('deleteMessage', { id: message });
     })
 
@@ -55,14 +64,28 @@ io.on('connection', socket => {
         io.to(chat).emit('editMessage', editedMessage);
     })
 
-    socket.on('sendImage', async ({ user, chat, image}) => {
-        const message = new Message({user, chat, created: new Date(), type: 'image'});
-        await message.save();
+    socket.on('sendFile', async message => {
+        // const buff = new Buffer.from(image.split(',')[1], 'base64').toString('binary');
+        // const type = (image.split('/')[1]).split(';')[0];
 
-        const buff = new Buffer.from(image.split(',')[1], 'base64').toString('binary');
-        const type = (data.split('/')[1]).split(';')[0];
-        fs.writeFile(`./public/chats/${chat}/${message._id}.${type}`, buff, 'binary', e => {if(e) console.log(e)});
+        // const message = new Message({user, chat, created: new Date(), type: 'image', datatype: type});
+        // await message.save();
 
-        io.to(chat).emit('getMessage', message);
+        // fs.writeFile(`./public/chats/${chat}/${message._id}_image.${type}`, buff, 'binary', e => {if(e) console.log(e)});
+
+        io.to(message.chat).emit('getMessage', message);
     })
+
+    // socket.on('sendVideo', async ({ user, chat, video}) => {
+    //     console.log(video)
+    //     const buff = new Buffer.from(video.split(',')[1], 'base64').toString('binary');
+    //     const type = (video.split('/')[1]).split(';')[0];
+
+    //     const message = new Message({user, chat, created: new Date(), type: 'video', datatype: type});
+    //     await message.save();
+
+    //     fs.writeFile(`./public/chats/${chat}/${message._id}_video.${type}`, buff, 'binary', e => {if(e) console.log(e)});
+
+    //     io.to(chat).emit('getMessage', message);
+    // })
 })

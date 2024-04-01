@@ -80,3 +80,13 @@ input::placeholder{color: #949AAF}
     margin-top: 0;
     height: 100vh;
 }
+
+.page_error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80%;
+    color: #949AAF;
+    font-size: 30px;
+    font-style: italic;
+}

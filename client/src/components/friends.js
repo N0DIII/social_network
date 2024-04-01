@@ -1,6 +1,6 @@
 const { useState, useEffect } = require('react');
 const { useNavigate, Link } = require('react-router-dom');
-const server = require('../server.js');
+const { server } = require('../server.js');
 const serverUrl = require('../server_url.js');
 
 require('../styles/friends.css');

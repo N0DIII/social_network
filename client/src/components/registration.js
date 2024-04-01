@@ -1,7 +1,7 @@
 const { useEffect, useState } = require('react');
 const { useNavigate } = require('react-router-dom');
 const url = require('../server_url.js');
-const server = require('../server.js');
+const { server } = require('../server.js');
 
 require('../styles/form.css');
 

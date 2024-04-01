@@ -15,6 +15,10 @@ export default function FullscreenImage(props) {
 
     useEffect(() => {
         setI(images.indexOf(selectImage));
+
+        window.addEventListener('keydown', e => {
+            if(e.key == 'Escape') setShow(false);
+        })
     }, [])
 
     function switching(k) {
@@ -28,10 +32,10 @@ export default function FullscreenImage(props) {
         <div className='fullscreenImage_wrapper'>
             <img className='fullscreenImage_close' src={closeImg} onClick={() => setShow(false)}/>
             <img className='fullscreenImage_previous' src={previousImg} style={i == 0 ? {opacity: '0', cursor: 'default'} : {}} onClick={() => switching(-1)}/>
-            {(image.split('_')[1]).split('.')[0] == 'image' &&
-            <img className='fullscreenImage_image' src={serverUrl + image}/>}
-            {(image.split('_')[1]).split('.')[0] == 'video' &&
-            <video className='fullscreenImage_image' src={serverUrl + image} controls/>}
+            {image.type == 'image' &&
+            <img className='fullscreenImage_image' src={serverUrl + image.src}/>}
+            {image.type == 'video' &&
+            <video className='fullscreenImage_image' src={serverUrl + image.src} controls/>}
             <img className='fullscreenImage_next' src={nextImg} style={i == images.length - 1 ? {opacity: '0', cursor: 'default'} : {}} onClick={() => switching(1)}/>
         </div>
     )

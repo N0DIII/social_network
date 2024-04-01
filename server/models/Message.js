@@ -7,7 +7,8 @@ const Message = new Schema({
     created: {type: Date},
     edit: {type: Boolean},
     type: {type: String},
-    replay: {type: ObjectId, ref: 'Message'}
+    replay: {type: ObjectId, ref: 'Message'},
+    filename: {type: String}
 })
 
 module.exports = model('Message', Message);
