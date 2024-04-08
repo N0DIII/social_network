@@ -1,7 +1,5 @@
 /client/node_modules
-/client/build
 /server/node_modules
-/server/build
 /server/mongodb
 /server/public/chats
 /server/public/groups
