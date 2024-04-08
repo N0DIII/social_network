@@ -5,8 +5,6 @@ const serverUrl = require('../server_url.js');
 
 require('../styles/sidemenu.css');
 
-const menuImg = require('../images/menu.png');
-
 export default function LeftMenu(props) {
     const { id, socket } = props;
 
@@ -19,6 +17,10 @@ export default function LeftMenu(props) {
         if(localStorage.getItem('closeLeftMenu') == '1') setStyle({left: '-22.9vw'});
 
         socket.on('update', getChats);
+        socket.on('createdChat', id => {
+            getChats();
+            socket.emit('joinChat', id);
+        })
     }, [])
 
     async function getChats() {
@@ -41,7 +43,7 @@ export default function LeftMenu(props) {
 
     if(id != undefined) return(
         <div className='sidemenu_wrapper leftmenu' style={style}>
-            <img className='sidemenu_image' src={menuImg} onClick={closeMenu}/>
+            <img className='sidemenu_image' src='/images/menu.png' onClick={closeMenu}/>
             <div className='sidemenu_items'>
                 {chats.map((chat, i) => 
                     <Link className='sidemenu_item' key={i} to={`/chat/${chat._id}`}>
@@ -50,6 +52,7 @@ export default function LeftMenu(props) {
                             {chat.online && <div className='sidemenu_item_avatar_status'></div>}
                         </div>
                         <div className='sidemenu_item_name'>{chat.name}</div>
+                        {chat.notify && <div className='sidemenu_item_notify'></div>}
                     </Link>
                 )}
             </div>

@@ -1,9 +1,8 @@
 .search_wrapper {
     display: flex;
-    width: 80%;
+    width: 90%;
     height: 50px;
     border-radius: 20px;
-    background: #25282E;
     overflow: hidden;
     z-index: 1000;
 }

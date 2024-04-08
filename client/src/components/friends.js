@@ -1,20 +1,24 @@
 const { useState, useEffect } = require('react');
-const { useNavigate, Link } = require('react-router-dom');
+const { useNavigate } = require('react-router-dom');
 const { server } = require('../server.js');
-const serverUrl = require('../server_url.js');
 
 require('../styles/friends.css');
 
 const Search = require('./search.js').default;
+const Friendslist = require('./friendslist.js').default;
 
 export default function Friends(props) {
-    const { userData } = props;
+    const { userData, setError } = props;
     const navigate = useNavigate();
 
     const [search, setSearch] = useState('');
-    const [items, setItems] = useState([]);
+    const [friends, setFriends] = useState(null);
+    const [requests, setRequests] = useState(null);
+    const [users, setUsers] = useState(null);
 
-    const [count, setCount] = useState(0);
+    const [countFriends, setCountFriends] = useState(0);
+    const [countRequests, setCountRequests] = useState(0);
+    const [countUsers, setCountUsers] = useState(0);
     const [page, setPage] = useState('friends');
 
     useEffect(() => {
@@ -23,8 +27,37 @@ export default function Friends(props) {
         if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
         if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
-        getItems(false);
+        server('/user/getItems', { id: userData._id, count: 0, search, type: 'friends' })
+        .then(result => {
+            if(!result.error) {
+                if(result.items.length != 0) setCountFriends(countFriends + 1);
+                setCountFriends(1);
+                setFriends(result.items);
+            }
+            else setError([true, result.message]);
+        })
+
+        server('/user/getItems', { id: userData._id, count: 0, search, type: 'requests' })
+        .then(result => {
+            if(!result.error) {
+                if(result.items.length != 0) setCountRequests(countRequests + 1);
+                setCountRequests(1);
+                setRequests(result.items);
+            }
+            else setError([true, result.message]);
+        })
+
+        server('/user/getItems', { id: userData._id, count: 0, search, type: 'users' })
+        .then(result => {
+            if(!result.error) {
+                if(result.items.length != 0) setCountUsers(countUsers + 1);
+                setCountUsers(1);
+                setUsers(result.items);
+            }
+            else setError([true, result.message]);
+        })
     }, [userData, search, page])
+
 
     function scroll(e) {
         const scrollTop = e.target.scrollTop;
@@ -33,7 +66,7 @@ export default function Friends(props) {
         const dif = scrollHeight / 4;
 
         if(scrollTop + clientHeight >= scrollHeight - dif) {
-            getItems(true);
+            getItems();
         }
     }
 
@@ -51,50 +84,36 @@ export default function Friends(props) {
         }
     }
 
-    async function getItems(add) {
-        if(!add) setCount(0);
+    async function getItems() {
+        if(page == 'friends')
+            server('/user/getItems', { id: userData._id, count: countFriends, search, type: 'friends' })
+            .then(result => {
+                if(!result.error) {
+                    if(result.items.length != 0) setCountFriends(countFriends + 1);
+                    setFriends([...friends, ...result.items]);
+                }
+                else setError([true, result.message]);
+            })
 
-        switch(page) {
-            case 'friends': 
-                let friends = await getFriends();
-                if(add) setItems([...items, ...friends]);
-                else setItems(friends);
-                break;
-            case 'requests': 
-                let requests = await getRequests();
-                if(add) setItems([...items, ...requests]);
-                else setItems(requests);
-                break;
-            case 'users': 
-                let users = await getUsers();
-                if(add) setItems([...items, ...users]);
-                else setItems(users);
-                break;
-        }
-    }
-    
-    async function getFriends() {
-        return server('/user/getFriends', {id: userData._id, count, search})
-        .then(result => {
-            if(result.length != 0) setCount(count + 1);
-            return result;
-        })
-    }
+        if(page == 'requests')
+            server('/user/getItems', { id: userData._id, count: countRequests, search, type: 'requests' })
+            .then(result => {
+                if(!result.error) {
+                    if(result.items.length != 0) setCountRequests(countRequests + 1);
+                    setRequests([...requests, ...result.items]);
+                }
+                else setError([true, result.message]);
+            })
 
-    async function getRequests() {
-        return server('/user/getRequests', {id: userData._id, count, search})
-        .then(result => {
-            if(result.length != 0) setCount(count + 1);
-            return result;
-        })
-    }
-
-    async function getUsers() {
-        return server('/user/getUsers', {id: userData._id, count, search})
-        .then(result => {
-            if(result.length != 0) setCount(count + 1);
-            return result;
-        })
+        if(page == 'users')
+            server('/user/getItems', { id: userData._id, count: countUsers, search, type: 'users' })
+            .then(result => {
+                if(!result.error) {
+                    if(result.items.length != 0) setCountUsers(countUsers + 1);
+                    setUsers([...users, ...result.items]);
+                }
+                else setError([true, result.message]);
+            })
     }
 
     return(
@@ -106,23 +125,15 @@ export default function Friends(props) {
             <div className='friends_wrapper'>
 
                 <div className='friends_navigate_wrapper'>
-                    <div className='friends_navigate_item' onClick={() => {setPage('friends'); setCount(0)}} style={page == 'friends' ? {borderBottom: '3px solid #8551FF'} : {}}>Друзья</div>
-                    <div className='friends_navigate_item' onClick={() => {setPage('requests'); setCount(0)}} style={page == 'requests' ? {borderBottom: '3px solid #8551FF'} : {}}>Приглашения</div>
-                    <div className='friends_navigate_item' onClick={() => {setPage('users'); setCount(0)}} style={page == 'users' ? {borderBottom: '3px solid #8551FF'} : {}}>Все пользователи</div>
+                    <div className='friends_navigate_item' onClick={() => setPage('friends')} style={page == 'friends' ? {borderBottom: '3px solid #8551FF'} : {}}>Друзья</div>
+                    <div className='friends_navigate_item' onClick={() => setPage('requests')} style={page == 'requests' ? {borderBottom: '3px solid #8551FF'} : {}}>Приглашения</div>
+                    <div className='friends_navigate_item' onClick={() => setPage('users')} style={page == 'users' ? {borderBottom: '3px solid #8551FF'} : {}}>Все пользователи</div>
                 </div>
 
-                <div className='friends_block'>
-                    {items.map((item, i) => 
-                        <Link className='friends_block_item' key={i} to={`/profile/${item._id}`}>
-                            <div className='friends_block_item_avatar'>
-                                <img src={`${serverUrl}/users/${item._id}/avatar.png`}/>
-                                {item.online && <div className='friends_block_item_avatar_status'></div>}
-                            </div>
-                            <div className='friends_block_item_username'>{item.username}</div>
-                        </Link>
-                    )}
-
-                    {items.length == 0 && <div className='friends_block_noResult'>Нет результатов</div>}
+                <div className='friends_items_wrapper' style={page == 'friends' ? {left: '100%'} : page == 'requests' ? {left: '0'} : {left: '-100%'}}>
+                    <Friendslist items={friends}/>
+                    <Friendslist items={requests}/>
+                    <Friendslist items={users}/>
                 </div>
             </div>
         </div>

@@ -7,7 +7,7 @@
     display: grid;
     justify-items: center;
     align-items: center;
-    z-index: 2000;
+    z-index: 3000;
 }
 
 .error_block, .serverError_block {
@@ -19,4 +19,7 @@
     background: #25282E;
     border-radius: 20px;
     padding: 20px;
+    text-align: center;
+    background: rgba(38, 40, 46, 0.8);
+    backdrop-filter: blur(30px);
 }

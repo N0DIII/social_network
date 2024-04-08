@@ -1,14 +1,20 @@
-require('../styles/search.css');
+const { useDebounce } = require('../hooks/useDebounce');
 
-const searchImg = require('../images/search.png');
+require('../styles/search.css');
 
 export default function Search(props) {
     const { setValue } = props;
 
+    const debouncedChange = useDebounce(onChange, 250);
+
+    function onChange(e) {
+        setValue(e.target.value);
+    }
+
     return(
         <div className='search_wrapper'>
-            <img src={searchImg}/>
-            <input type='text' onChange={e => setValue(e.target.value)}/>
+            <img src='/images/search.png'/>
+            <input type='text' placeholder='Введите запрос' onChange={debouncedChange}/>
         </div>
     )
 }

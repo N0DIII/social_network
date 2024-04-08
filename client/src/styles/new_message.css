@@ -36,6 +36,7 @@
     left: 5%;
     top: -155px;
     width: min-content;
+    min-width: 300px;
     background: #25282E;
     border-radius: 20px;
     overflow: hidden;

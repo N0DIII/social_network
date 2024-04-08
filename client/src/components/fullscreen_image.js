@@ -3,10 +3,6 @@ const serverUrl = require('../server_url.js');
 
 require('../styles/fullscreen_image.css');
 
-const nextImg = require('../images/rightArrow.png');
-const previousImg = require('../images/leftArrow.png');
-const closeImg = require('../images/cross2.png');
-
 export default function FullscreenImage(props) {
     const { selectImage, images, setShow } = props;
 
@@ -30,13 +26,16 @@ export default function FullscreenImage(props) {
 
     return(
         <div className='fullscreenImage_wrapper'>
-            <img className='fullscreenImage_close' src={closeImg} onClick={() => setShow(false)}/>
-            <img className='fullscreenImage_previous' src={previousImg} style={i == 0 ? {opacity: '0', cursor: 'default'} : {}} onClick={() => switching(-1)}/>
+            <img className='fullscreenImage_close' src='/images/cross2.png' onClick={() => setShow(false)}/>
+            <img className='fullscreenImage_previous' src='/images/leftArrow.png' style={i == 0 ? {opacity: '0', cursor: 'default'} : {}} onClick={() => switching(-1)}/>
+
             {image.type == 'image' &&
             <img className='fullscreenImage_image' src={serverUrl + image.src}/>}
+
             {image.type == 'video' &&
             <video className='fullscreenImage_image' src={serverUrl + image.src} controls/>}
-            <img className='fullscreenImage_next' src={nextImg} style={i == images.length - 1 ? {opacity: '0', cursor: 'default'} : {}} onClick={() => switching(1)}/>
+
+            <img className='fullscreenImage_next' src='/images/rightArrow.png' style={i == images.length - 1 ? {opacity: '0', cursor: 'default'} : {}} onClick={() => switching(1)}/>
         </div>
     )
 }

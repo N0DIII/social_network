@@ -23,19 +23,20 @@ class albumController {
 
             const album = new Album({name: name == '' ? 'Без названия' : name, user: id});
 
-            const src = `./public/users/${id}/albums/${album._id}`;
-            fs.mkdir(src, e => {if(e) {
-                console.log(e);
-                return res.json(false);
-            }})
-
-            album.save();
-
-            res.json({ _id: album._id, name: album.name, user: album.user, cover: null});
+            fs.mkdir(`./public/users/${id}/albums/${album._id}`, e => {
+                if(e) {
+                    console.log(e);
+                    res.json({ error: true, message: 'Произошла ошибка при создании альбома' });
+                }
+                else {
+                    album.save();
+                    res.json({ error: false, album: { _id: album._id, name: album.name, user: album.user, cover: null } });
+                }
+            })
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при создании альбома' });
         }
     }
 
@@ -43,14 +44,19 @@ class albumController {
         try {
             const { album, user } = req.body;
 
-            await Album.deleteOne({_id: album});
-            fs.rm(`./public/users/${user}/albums/${album}`, {recursive: true}, e => {if(e) console.log(e)});
-
-            res.json(true);
+            fs.rm(`./public/users/${user}/albums/${album}`, {recursive: true}, async e => {
+                if(e) {
+                    console.log(e);
+                    res.json({ error: true, message: 'Произошла ошибка при удалении альбома' });
+                } else {
+                    await Album.deleteOne({_id: album});
+                    res.json({ error: false });
+                }
+            })
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при удалении альбома' });
         }
     }
 
@@ -58,13 +64,14 @@ class albumController {
         try {
             const { id, name } = req.body;
 
-            await Album.updateOne({_id: id}, {$set: {name}});
+            let newName = name.trim() == '' ? 'Без названия' : name;
+            await Album.updateOne({_id: id}, {$set: {name: newName}});
             
-            res.json(true);
+            res.json({ error: false, title: newName });
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при изменении названия' });
         }
     }
 
@@ -77,15 +84,15 @@ class albumController {
             for(let i = 0; i < albums.length; i++) {
                 const cover = await Photo.findOne({album: albums[i]._id, type: 'image'});
                 
-                let album = {_id: albums[i]._id, name: albums[i].name, user: albums[i].user, cover: cover};
+                let album = {_id: albums[i]._id, name: albums[i].name, user: albums[i].user, cover: cover == null ? null : `/users/${id}/albums/${cover.album}/${cover._id}.${getType(cover.name)}`};
                 albums[i] = album;
             }
 
-            res.json(albums);
+            res.json({ error: false, albums });
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при получении альбомов' });
         }
     }
 
@@ -95,11 +102,11 @@ class albumController {
 
             const album = await Album.findOne({_id: id});
 
-            res.json(album);
+            res.json({ error: false, album });
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при получении альбома' });
         }
     }
 
@@ -107,53 +114,66 @@ class albumController {
         try {
             const { id } = req.body;
 
-            // const album = await Album.findOne({_id: id});
+            let photos = await Photo.find({album: id}, {album: 0});
 
-            // const files = fs.readdirSync(`./public/users/${album.user}/albums/${id}`);
-            // let photos = [];
-            // files.forEach(el => photos.push(`/users/${album.user}/albums/${id}/${el}`));
+            for(let i = 0; i < photos.length; i++) {
+                photos[i] = { _id: photos[i]._id, type: photos[i].type, src: `/users/${photos[i].user}/albums/${id}/${photos[i]._id}.${getType(photos[i].name)}` };
+            }
 
-            const photos = await Photo.find({album: id}, {album: 0});
-
-            res.json(photos);
+            res.json({ error: false, photos });
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при получении фото' });
         }
     }
 
     async loadPhoto(req, res) {
         try {
-            const { album, user, type } = JSON.parse(req.body.json);
+            const { album, user } = JSON.parse(req.body.json);
             const file = req.file;
     
             if(!file) return res.json({error: true, message: 'Неверный тип файла'});
+
+            let type = file.mimetype.split('/')[0] == 'image' ? 'image' : 'video';
     
-            const photo = await new Photo({album, type, name: file.originalname});
-            await photo.save();
+            const photo = await new Photo({album, type, user, name: file.originalname});
     
-            fs.rename(file.path, `./public/users/${user}/albums/${album}/${photo._id}.${getType(file.originalname)}`, e => {if(e) console.log(e)});
-    
-            res.json(photo);
+            fs.rename(file.path, `./public/users/${user}/albums/${album}/${photo._id}.${getType(file.originalname)}`, async e => {
+                if(e) {
+                    console.log(e);
+                    res.json({ error: true, message: 'Ошибка при загрузке файлов' });
+                }
+                else {
+                    await photo.save();
+                    res.json({ error: false, photo: { _id: photo._id, type: photo.type, src: `/users/${user}/albums/${album}/${photo._id}.${getType(photo.name)}` } });
+                }
+            })
         }
         catch(e) {
             console.log(e);
-            res.json({error: true});
+            res.json({error: true, message: 'Ошибка при загрузке файла'});
         }
     }
 
     async deletePhoto(req, res) {
         try {
-            const { src } = req.body;
+            const { src, id } = req.body;
 
-            fs.unlink('./public' + src, e => {if(e) console.log(e)});
-            
-            res.json(true);
+            await Photo.deleteOne({_id: id});
+            fs.unlink('./public' + src, e => {
+                if(e) {
+                    console.log(e);
+                    res.json({ error: true, message: 'Произошла ошибка при удалении фото' });
+                }
+                else {
+                    res.json({ error: false });
+                }
+            })
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при удалении фото' });
         }
     }
 }

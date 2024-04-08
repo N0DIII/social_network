@@ -19,9 +19,13 @@ const Friends = require('./components/friends.js').default;
 const Album = require('./components/album.js').default;
 const Chat = require('./components/chat.js').default;
 const NotFound = require('./components/not_found.js').default;
+const Error = require('./components/error').default;
+const Confirm = require('./components/confirm.js').default;
 
 export default function App() {
     const [userData, setUserData] = useState(false);
+    const [error, setError] = useState(false);
+    const [confirm, setConfirm] = useState([false, () => console.log('Вы подтвердили действие')]);
 
     useEffect(() => {
         auth().then(result => {
@@ -40,6 +44,8 @@ export default function App() {
             <div className='App'>
                 {userData && <RightMenu id={userData._id} username={userData.username}/>}
                 {userData && <LeftMenu id={userData._id} socket={socket}/>}
+                <Error params={[error, setError]}/>
+                <Confirm confirm={[confirm, setConfirm]}/>
                 <Routes>
                     <Route path='*' element={<NotFound/>}/>
                     <Route path='/not_found' element={<NotFound/>}/>
@@ -47,12 +53,12 @@ export default function App() {
                     <Route path='/registration' element={<Registration setUserData={setUserData}/>}/>
                     <Route path='/login' element={<Login setUserData={setUserData}/>}/>
 
-                    <Route path='/' element={<Main userData={userData} socket={socket}/>}/>
-                    <Route path='/profile/:id' element={<Profile userData={userData} socket={socket}/>}/>
-                    <Route path='/changeUserData/:id' element={<ChangeUserData userData={userData} socket={socket}/>}/>
-                    <Route path='/friends' element={<Friends userData={userData} socket={socket}/>}/>
-                    <Route path='/album/:id' element={<Album userData={userData} socket={socket}/>}/>
-                    <Route path='/chat/:id' element={<Chat userData={userData} socket={socket}/>}/>
+                    <Route path='/' element={<Main userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
+                    <Route path='/profile/:id' element={<Profile userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
+                    <Route path='/changeUserData/:id' element={<ChangeUserData userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
+                    <Route path='/friends' element={<Friends userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
+                    <Route path='/album/:id' element={<Album userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
+                    <Route path='/chat/:id' element={<Chat userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
                 </Routes>
             </div>
         </BrowserRouter>

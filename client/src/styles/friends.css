@@ -1,9 +1,10 @@
 .friends_wrapper {
     position: relative;
-    width: 100%;
+    width: calc(100% - 40px);
     display: grid;
     justify-items: center;
-    padding: 20px;
+    margin: 20px;
+    overflow: hidden;
 }
 
 .friends_separator {
@@ -23,8 +24,6 @@
 }
 
 .friends_block {
-    display: grid;
-    gap: 20px;
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -38,6 +37,7 @@
     height: 100px;
     background: #25282E;
     border-radius: 20px;
+    margin: 20px 0;
 }
 
 .friends_block_item_avatar {
@@ -88,4 +88,11 @@
 .friends_navigate_item:hover {
     cursor: pointer;
     border-bottom: 3px solid #8551FF;
+}
+
+.friends_items_wrapper {
+    position: relative;
+    display: flex;
+    width: 300%;
+    transition: left 0.5s ease-in-out;
 }

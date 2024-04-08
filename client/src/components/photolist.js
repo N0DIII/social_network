@@ -4,13 +4,10 @@ const serverUrl = require('../server_url.js');
 require('../styles/photolist.css');
 require('../styles/load.css');
 
-const deleteImg = require('../images/delete.png');
-const playImg = require('../images/play.png');
-
 const FullscreenImage = require('./fullscreen_image.js').default;
 
 export default function Photolist(props) {
-    const { items, isOwner = false, deletePhoto = () => {} } = props;
+    const { items, isOwner, deletePhoto, setConfirm } = props;
 
     const [showFullscreenImage, setShowFullscreenImage] = useState(false);
     const [selectImage, setSelectImage] = useState();
@@ -45,13 +42,13 @@ export default function Photolist(props) {
                     else {
                         return(
                             <div className='photolist_photo_wrapper' key={i}>
-                                {isOwner && <img className='photolist_photo_delete' src={deleteImg} onClick={() => deletePhoto(item)}/>}
-                                {(item.split('_')[1]).split('.')[0] == 'image' &&
-                                <img className='photolist_photo' src={serverUrl + item} onClick={() => {setSelectImage(item); setShowFullscreenImage(!showFullscreenImage)}}/>}
-                                {(item.split('_')[1]).split('.')[0] == 'video' &&
+                                {isOwner && <img className='photolist_photo_delete' src='/images/delete.png' onClick={() => setConfirm([true, deletePhoto, [item.src, item._id]])}/>}
+                                {item.type == 'image' &&
+                                <img className='photolist_photo' src={serverUrl + item.src} onClick={() => {setSelectImage(item); setShowFullscreenImage(!showFullscreenImage)}}/>}
+                                {item.type == 'video' &&
                                 <div className='photolist_photo' onClick={() => {setSelectImage(item); setShowFullscreenImage(!showFullscreenImage)}}>
-                                    <img className='photolist_play' src={playImg}/>
-                                    <video src={serverUrl + item}/>
+                                    <img className='photolist_play' src='/images/play.png'/>
+                                    <video src={serverUrl + item.src}/>
                                 </div>}
                             </div>
                         )

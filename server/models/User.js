@@ -8,7 +8,8 @@ const User = new Schema({
     friends: [{type: ObjectId, ref: 'User'}],
     friend_requests: [{type: ObjectId, ref: 'User'}],
     online: {type: Boolean},
-    last_online: {type: Date}
+    last_online: {type: Date},
+    delete: {type: Boolean}
 })
 
 module.exports = model('User', User);

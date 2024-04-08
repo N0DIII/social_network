@@ -1,0 +1,55 @@
+.chatMenu_wrapper {
+    position: absolute;
+    z-index: 3000;
+    top: 80px;
+    height: calc(100vh - 80px);
+    width: 99%;
+    background: rgba(38, 40, 46, 0.8);
+    backdrop-filter: blur(30px);
+    border-radius: 20px;
+    transition: left 0.6s ease-in-out;
+    overflow: hidden;
+    z-index: 2000;
+}
+
+.chatMenu_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    padding: 0 10px;
+}
+
+.chatMenu_header_items {
+    display: flex;
+    height: inherit;
+}
+
+.chatMenu_header_item {
+    display: flex;
+    align-items: center;
+    height: inherit;
+    padding: 0 5px;
+}
+
+.chatMenu_header_item:hover {
+    cursor: pointer;
+    border-bottom: 3px solid #8551FF;
+}
+
+.chatMenu_header_button {
+    width: 40%;
+    max-width: 400px;
+    padding: 0 20px;
+}
+
+.chatMenu_items {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    height: calc(100% - 70px);
+    width: 300%;
+    padding: 20px;
+    transition: left 0.8s ease-in-out;
+}

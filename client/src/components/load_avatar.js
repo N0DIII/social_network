@@ -2,12 +2,10 @@ const { useRef } = require('react');
 
 require('../styles/load_avatar.css');
 
-const changeImg = require('../images/pen.png');
-let defaultAvatar = require('../images/defaultAvatar.png');
-
 export default function LoadAvatar(props) {
     const { src, setAvatarUrl } = props;
 
+    let defaultAvatar = 'images/defaulAvatar.png';
     let avatarImg = useRef(null);
     let cvs = useRef(null);
 
@@ -88,7 +86,7 @@ export default function LoadAvatar(props) {
 
     return (
         <div className='loadAvatar_wrapper'>
-            <img className='loadAvatar_change' src={changeImg}/>
+            <img className='loadAvatar_change' src='/images/pen.png'/>
             <canvas ref={cvs} className='loadAvatar_canvas' width={768} height={768}></canvas>
             <img ref={avatarImg} className='loadAvatar_img' src={defaultAvatar}/>
             <input className='loadAvatar_input' type='file' name='avatar' accept='image/*' onChange={editor}/>

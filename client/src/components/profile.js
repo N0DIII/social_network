@@ -5,16 +5,12 @@ const { server } = require('../server.js');
 
 require('../styles/profile.css');
 
-const plusImg = require('../images/plus.png');
-const crossImg = require('../images/cross.png');
-
 const Button = require('./button.js').default;
 const Input = require('./input.js').default;
-const Error = require('./error.js').default;
 const Albumlist = require('./albumlist.js').default;
 
 export default function Profile(props) {
-    const { userData } = props;
+    const { userData, setError, socket, setConfirm } = props;
     const navigate = useNavigate();
     const params = useParams();
     const { id } = params;
@@ -24,7 +20,6 @@ export default function Profile(props) {
     const [showAddAlbum, setShowAddAlbum] = useState(false);
     const [albumName, setAlbumName] = useState('');
     const [friendStatus, setFriendStatus] = useState(0);
-    const [error, setError] = useState(false);
 
     useEffect(() => {
         if(!userData) return;
@@ -34,17 +29,17 @@ export default function Profile(props) {
 
         server('/user/getUserData', { id: id, myId: userData._id })
         .then(result => {
-            if(result) {
+            if(!result.error) {
                 setUser({ username: result.user.username, birthday: result.user?.birthday });
                 setFriendStatus(result.friendStatus);
             }
-            else setError(true);
+            else navigate('/not_found');
         })
 
         server('/album/getAlbums', { id: id })
         .then(result => {
-            if(result) setAlbums(result);
-            else setError(true);
+            if(!result.error) setAlbums(result.albums);
+            else setError([true, result.message]);
         })
     }, [userData, id])
 
@@ -60,47 +55,39 @@ export default function Profile(props) {
     function reqFriend(req) {
         server(req, {id: id, myId: userData._id})
         .then(result => {
-            if(result) setFriendStatus(result.status);
+            if(!result.error) setFriendStatus(result.status);
+            else setError([true, result.message]);
         })
     }
 
     function addAlbum() {
         server('/album/addAlbum', { id: id, name: albumName })
         .then(result => {
-            if(result) {
-                setAlbums([...albums, result]);
+            if(!result.error) {
+                setAlbums([...albums, result.album]);
                 setShowAddAlbum(false);
             }
-            else setError(true);
+            else setError([true, result.message]);
         })
     }
 
     function deleteAlbum(id) {
         server('/album/deleteAlbum', { album: id, user: userData._id })
         .then(result => {
-            if(result) {
-                // server('/album/getAlbums', { id: userData._id })
-                // .then(result => {
-                //     setAlbums(result);
-                // })
-                setAlbums(albums.filter(album => album._id != id));
-            }
-            else setError(true);
+            if(!result.error) setAlbums(albums.filter(album => album._id != id));
+            else setError([true, result.message]);
         })
     }
 
     function createChat() {
-        server('/chat/createPersonalChat', { userID1: userData._id, userID2: id})
-        .then(result => {
-            if(result) navigate(`/chat/${result._id}`);
-            else setError(true);
+        socket.emit('createPersonalChat', { user1: userData._id, user2: id });
+        socket.on('createPersonalChat', id => {
+            navigate(`/chat/${id}`);
         })
     }
 
     return(
         <div className='page page_noTitle'>
-            <Error params={[error, setError]}/>
-
             <div className='profile_userdata'>
                 <img className='profile_avatar' src={`${serverUrl}/users/${id}/avatar.png`}/>
 
@@ -114,7 +101,7 @@ export default function Profile(props) {
                     {friendStatus == 0 && <Button title='Добавить в друзья' onclick={() => reqFriend('/user/addFriend')}/>}
                     {friendStatus == 1 && <Button title='Приглашение отправлено'/>}
                     {friendStatus == 2 && <Button title='Принять приглашение' onclick={() => reqFriend('/user/acceptFriend')}/>}
-                    {friendStatus == 3 && <Button title='Удалить из друзей' onclick={() => reqFriend('/user/deleteFriend')}/>}
+                    {friendStatus == 3 && <Button title='Удалить из друзей' onclick={() => setConfirm([true, reqFriend, ['/user/deleteFriend']])}/>}
                     <Button title='Написать' onclick={createChat}/>
                 </div>}
 
@@ -127,7 +114,7 @@ export default function Profile(props) {
             <div className='profile_albums_wrapper'>
                 <div className='profile_albums_title'>
                     Альбомы
-                    {userData._id == id && <img className='profile_albums_addAlbumButton' src={!showAddAlbum ? plusImg : crossImg} onClick={() => setShowAddAlbum(!showAddAlbum)}/>}
+                    {userData._id == id && <img className='profile_albums_addAlbumButton' src={!showAddAlbum ? '/images/plus.png' : '/images/cross.png'} onClick={() => setShowAddAlbum(!showAddAlbum)}/>}
                 </div>
 
                 {showAddAlbum && 
@@ -136,7 +123,7 @@ export default function Profile(props) {
                     <Button title='Сохранить' onclick={addAlbum}/>
                 </div>}
 
-                <Albumlist items={albums} isOwner={userData._id == id ? true : false} deleteAlbum={deleteAlbum}/>
+                <Albumlist items={albums} isOwner={userData._id == id ? true : false} deleteAlbum={deleteAlbum} setConfirm={setConfirm}/>
             </div>
         </div>
     )

@@ -2,16 +2,12 @@ const { useState } = require('react');
 
 require('../styles/input.css');
 
-const errorImg = require('../images/error.png');
-const eyeImg = require('../images/eye.png');
-const crossedEyeImg = require('../images/crossedEye.png');
-
 export default function Input(props) {
     const { type, error, placeholder, setValue, value, min, max } = props;
 
     const [isShow, setIsShow] = useState(true);
     const [inType, setInType] = useState(type);
-    const [passwordButtonImg, setPasswordButtonImg] = useState(eyeImg);
+    const [passwordButtonImg, setPasswordButtonImg] = useState('/images/eye.png');
 
     function input(e) {
         setValue(e.target.value)
@@ -20,12 +16,12 @@ export default function Input(props) {
     function showPassword() {
         if(isShow) {
             setInType('text');
-            setPasswordButtonImg(crossedEyeImg);
+            setPasswordButtonImg('/images/crossedEye.png');
             setIsShow(false);
         }
         else {
             setInType('password');
-            setPasswordButtonImg(eyeImg);
+            setPasswordButtonImg('/images/eye.png');
             setIsShow(true);
         }
     }
@@ -40,7 +36,7 @@ export default function Input(props) {
 
             {error != undefined && error != '' &&
             <div className='input_error'>
-                <img src={errorImg}/>
+                <img src='/images/error.png'/>
                 <div className='input_error_text'>{error}</div>
             </div>}
         </div>

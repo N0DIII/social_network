@@ -1,0 +1,30 @@
+.confirm_wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.confirm_form {
+    width: 40%;
+    min-width: 400px;
+    padding: 30px;
+    background: #1a1c20;
+    border-radius: 20px;
+    text-align: center;
+    background: rgba(38, 40, 46, 0.8);
+    backdrop-filter: blur(30px);
+}
+
+.confirm_buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    width: 100%;
+    padding-top: 20px;
+}

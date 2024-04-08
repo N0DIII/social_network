@@ -3,17 +3,11 @@ const { server } = require('../server.js');
 
 require('../styles/album_title.css');
 
-const editImg = require('../images/pen.png');
-const saveImg = require('../images/checkMark.png');
-
-const Error = require('./error').default;
-
 export default function AlbumTitle(props) {
-    const { id, title, isOwner, loadFile } = props;
+    const { id, title, isOwner, loadFile, setError } = props;
     
     const [name, setName] = useState(null);
     const titleInput = useRef(null);
-    const [error, setError] = useState(false);
     
     useEffect(() => {
         setName(title);
@@ -23,17 +17,18 @@ export default function AlbumTitle(props) {
         const title = titleInput.current;
 
         if(title.disabled) {
-            e.target.src = saveImg;
+            e.target.src = '/images/checkMark.png';
             title.disabled = false;
             title.focus();
         }
         else {
-            e.target.src = editImg;
+            e.target.src = '/images/pen.png';
             title.disabled = true;
 
-            server('/file/changeAlbumName', { id, name })
+            server('/album/changeAlbumName', { id, name })
             .then(result => {
-                if(!result) setError(true);
+                if(result.error) setError([true, result.message]);
+                else setName(result.title);
             })
         }
     }
@@ -48,9 +43,8 @@ export default function AlbumTitle(props) {
     else {
         return(
             <div className='album_title'>
-                <Error params={[error, setError]}/>
                 <input ref={titleInput} type='text' value={name} disabled={true} onChange={e => setName(e.target.value)}/>
-                {isOwner && <img className='album_title_changeName' src={editImg} onClick={changeTitle}/>}
+                {isOwner && <img className='album_title_changeName' src='/images/pen.png' onClick={changeTitle}/>}
                 {isOwner &&
                 <div className='album_input_wrapper'>
                     <div className='album_input_text'>Загрузить фото или видео</div>

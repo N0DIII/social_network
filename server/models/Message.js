@@ -7,7 +7,6 @@ const Message = new Schema({
     created: {type: Date},
     edit: {type: Boolean},
     type: {type: String},
-    replay: {type: ObjectId, ref: 'Message'},
     filename: {type: String}
 })
 

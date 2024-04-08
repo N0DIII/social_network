@@ -7,7 +7,7 @@ class userController {
             const { id, myId } = req.body;
 
             const user = await User.findOne({_id: id}, {_id: 0, username: 1, birthday: 1, sex: 1, albums: 1, posts: 1});
-            if(!user) return res.json({message: 'Пользователь не найден'});
+            if(!user || user.delete) return res.json({ error: true, message: 'Пользователь не найден' });
 
             let friendStatus = 3;
             let friend = await User.findOne({_id: id, friends: myId}, {_id: 1});
@@ -22,11 +22,11 @@ class userController {
                 }
             }
 
-            return res.json({user, friendStatus});
+            return res.json({ error: false, user, friendStatus});
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Пользователь не найден' });
         }
     }
 
@@ -43,57 +43,47 @@ class userController {
 
             if(avatar != undefined) {
                 let buff = new Buffer.from(avatar.split(',')[1], 'base64').toString('binary');
-                fs.writeFile(`./public/users/${id}/avatar.png`, buff, 'binary', e => {if(e) console.log(e)});
+                fs.writeFile(`./public/users/${id}/avatar.png`, buff, 'binary', e => {
+                    if(e) {
+                        console.log(e);
+                        res.json({ error: true, message: 'Произошла ошибка при изменении аватара' });
+                    }
+                    else {
+                        res.json({ error: false });
+                    }
+                })
             }
-
-            res.json(true);
+            else {
+                res.json({ error: false });
+            }
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при изменении данных' });
         }
     }
 
-    async getUsers(req, res) {
+    async getItems(req, res) {
         try {
-            const { id, count, search } = req.body;
+            const { id, count, search, type } = req.body;
 
-            const users = await User.find({_id: {$ne: id}, username: {$regex: search}}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
-
-            res.json(users);
+            if(type == 'friends') {
+                const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1}).skip(count * 10).limit(10);
+                res.json({ error: false, items: friends });
+            }
+            else if(type == 'requests') {
+                const me = await User.findOne({_id: id}, {friend_requests: 1});
+                const requests = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1}).skip(count * 10).limit(10);
+                res.json({ error: false, items: requests });
+            }
+            else if(type == 'users') {
+                const users = await User.find({_id: {$ne: id}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
+                res.json({ error: false, items: users });
+            }
         }
         catch(e) {
             console.log(e);
-            res.json(false);
-        }
-    }
-
-    async getFriends(req, res) {
-        try {
-            const { id, count, search } = req.body;
-
-            const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}}, {_id: 1, username: 1}).skip(count * 10).limit(10);
-
-            res.json(friends);
-        }
-        catch(e) {
-            console.log(e);
-            res.json(false);
-        }
-    }
-
-    async getRequests(req, res) {
-        try {
-            const { id, count, search } = req.body;
-
-            const me = await User.findOne({_id: id}, {friend_requests: 1});
-            const requests = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}}, {_id: 1, username: 1}).skip(count * 10).limit(10);
-
-            res.json(requests);
-        }
-        catch(e) {
-            console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Произошла ошибка при получении пользователей' });
         }
     }
 
@@ -103,11 +93,11 @@ class userController {
 
             await User.updateOne({_id: id}, {$push: {friend_requests: myId}});
 
-            res.json({ status: 1 });
+            res.json({ error: false, status: 1 });
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Ошибка при отправке запроса' });
         }
     }
 
@@ -119,11 +109,11 @@ class userController {
             await User.updateOne({_id: myId}, {$push: {friends: id}});
             await User.updateOne({_id: id}, {$push: {friends: myId}});
 
-            res.json({ status: 3 });
+            res.json({ error: false, status: 3 });
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Ошибка при принятии запроса' });
         }
     }
 
@@ -134,11 +124,25 @@ class userController {
             await User.updateOne({_id: myId}, {$pull: {friends: id}});
             await User.updateOne({_id: id}, {$pull: {friends: myId}});
 
-            res.json({ status: 0 });
+            res.json({ error: false, status: 0 });
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Ошибка при удалении из друзей' });
+        }
+    }
+
+    async deleteUser(req, res) {
+        try {
+            const { id } = req.body;
+
+            await User.updateOne({ _id: id }, { $set: { delete: true } });
+
+            res.json({ error: false });
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true, message: 'Ошибка при удалении аккаунта' });
         }
     }
 }

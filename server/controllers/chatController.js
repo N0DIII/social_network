@@ -30,50 +30,21 @@ class chatController {
     uploadVideo = multer({storage: storageConfig, fileFilter: videoFilter})
     uploadFile = multer({storage: storageConfig, fileFilter: fileFilter})
 
-    async createPersonalChat(req, res) {
-        try {
-            const { userID1, userID2 } = req.body;
-
-            const chat = new Chat({users: [userID1, userID2], type: 'personal'});
-            chat.save();
-
-            const src = `./public/chats/${chat._id}`;
-            fs.mkdir(src, e => {if(e) console.log(e)});
-
-            res.json(chat);
-        }
-        catch(e) {
-            console.log(e);
-            res.json(false);
-        }
-    }
-
     async getChats(req, res) {
         try {
             const { id } = req.body;
 
-            let chats = await Chat.find({users: {$in: [id]}});
+            let chats = await Chat.find({ users: { $in: [id] } });
             
             for(let i = 0; i < chats.length; i++) {
-                if(chats[i].type == 'personal') {
-                    for(let j = 0; j < chats[i].users.length; j++) {
-                        if(chats[i].users[j].toString() != id) {
-                            const chat = await User.findOne({_id: chats[i].users[j]}, {username: 1, online: 1});
-                            chats[i] = { _id: chats[i]._id, name: chat.username, avatar: chats[i].users[j], online: chat.online };
-                            break;
-                        }
-                    }
-                }
-                else if(chats[i].type == 'public') {
-                    chats[i] = { _id: chats[i]._id, name: chats[i].name, avatar: `/chats/${chats[i]._id}/avatar.png`, online: false };
-                }
+                chats[i] = await formChat(chats[i]._id, id);
             }
 
             res.json(chats);
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Ошибка при получении чатов' });
         }
     }
 
@@ -81,26 +52,13 @@ class chatController {
         try {
             const { chatID, userID } = req.body;
 
-            let chat = await Chat.findOne({_id: chatID}, {_id: 0});
-
-            if(chat.type == 'personal') {
-                for(let i = 0; i < chat.users.length; i++) {
-                    if(chat.users[i].toString() != userID) {
-                        const user = await User.findOne({_id: chat.users[i]}, {username: 1, online: 1});
-                        chat = { _id: chat._id, name: user.username, avatar: chat.users[i], online: user.online };
-                        break;
-                    }
-                }
-            }
-            else if(chat.type == 'public') {
-                chat = { _id: chat._id, name: chat.name, avatar: `/chats/${chat._id}/avatar.png`, online: false };
-            }
+            const chat = await formChat(chatID, userID);
 
             res.json(chat);
         }
         catch(e) {
             console.log(e);
-            res.json(false);
+            res.json({ error: true, message: 'Ошибка при получении чата' });
         }
     }
 
@@ -114,6 +72,64 @@ class chatController {
 
     async sendFile(req, res) {
         saveFile(req, res, 'file');
+    }
+
+    async getPhoto(req, res) {
+        try {
+            const { id } = req.body;
+
+            const photo = await Message.find({ type: 'image', chat: id });
+
+            res.json(photo);
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true, message: 'Произошла ошибка при получении фотографий'});
+        }
+    }
+
+    async getVideo(req, res) {
+        try {
+            const { id } = req.body;
+
+            const video = await Message.find({ type: 'video', chat: id });
+
+            res.json(video);
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true, message: 'Произошла ошибка при получении видео'});
+        }
+    }
+
+    async getFile(req, res) {
+        try {
+            const { id } = req.body;
+
+            const file = await Message.find({ type: 'file', chat: id });
+
+            res.json(file);
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true, message: 'Произошла ошибка при получении файлов'});
+        }
+    }
+
+    async deleteChat(req, res) {
+        try {
+            const { chatID, userID } = req.body;
+
+            const chat = await Chat.findOne({ _id: chatID }, { users: 1 });
+            if(chat.users.length != 1) await Chat.updateOne({ _id: chatID }, { $pull: { users: userID }, $push: { leave: userID } });
+            else await Chat.deleteOne({ _id: chatID });
+
+            res.json({ error: false });
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true, message: 'Произошла ошибка при выходе из чата' });
+        }
     }
 }
 
@@ -133,8 +149,43 @@ async function saveFile(req, res, type) {
     }
     catch(e) {
         console.log(e);
-        res.json({error: true});
+        res.json({ error: true });
     }
+}
+
+async function formChat(chatID, userID) {
+    let chat = await Chat.findOne({ _id: chatID });
+
+    let type = chat.type, name = '', avatar = '', online = false, last_online = false;
+    let notify = await Chat.findOne({ _id: chatID, notify: { $in: [userID] } }, { _id: 1 });
+    if(notify != null) notify = true;
+    else notify = false;
+
+    if(type == 'personal') {
+        let user;
+        if(chat.users.length == 1) {
+            user = await User.findOne({ _id: chat.leave[0] });
+            avatar = chat.leave[0];
+        }
+        else {
+            for(let i = 0; i < chat.users.length; i++) {
+                if(chat.users[i].toString() != userID) {
+                    user = await User.findOne({ _id: chat.users[i] }, { username: 1, online: 1, last_online: 1 });
+                    avatar = chat.users[i];
+                    break;
+                }
+            }
+        }
+
+        name = user.username;
+        online = user.online;
+        last_online = user.last_online;
+    }
+    else if(type == 'public') {
+        avatar = `/chats/${chatID}/avatar.png`;
+    }
+
+    return { _id: chatID, name, avatar, online, last_online, type, notify };
 }
 
 const getType = (str) => str.split('.')[str.split('.').length - 1];

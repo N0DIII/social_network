@@ -8,6 +8,7 @@
 }
 
 .message_wrapper {
+    position: relative;
     display: flex;
     align-items: center;
     width: 100%;
@@ -78,7 +79,7 @@
     justify-self: center;
     align-self: center;
     opacity: 0.9;
-    z-index: 2000;
+    z-index: 1000;
 }
 
 .message_video:hover {
@@ -95,4 +96,17 @@
 .message_file > img {
     height: 40px;
     padding-right: 10px;
+}
+
+.message_date {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    text-align: center;
+    width: 100%;
+    color: #949AAF;
+}
+
+.messageDate {
+    padding-top: 50px;
 }

@@ -2,8 +2,6 @@ const { useState } = require('react');
 
 require('../styles/image_input.css');
 
-const plusImg = require('../images/plus.png');
-
 export default function ImageInput(props) {
     const { setValue, defaultSrc } = props;
 
@@ -26,7 +24,7 @@ export default function ImageInput(props) {
 
     return(
         <div className='imageInput_wrapper'>
-            <img className='imageInput_text' src={plusImg}/>
+            <img className='imageInput_text' src='/images/plus.png'/>
             <img className='imageInput_preview' src={preview} style={style}/>
             <input type='file' className='imageInput_input' onChange={loadImage}/>
         </div>

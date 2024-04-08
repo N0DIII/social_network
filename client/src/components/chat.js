@@ -1,30 +1,30 @@
-// import TimeAgo from 'react-timeago';
-// import ruStrings from 'react-timeago/lib/language-strings/ru';
-// import buildFormatter from 'react-timeago/lib/formatters/buildFormatter';
-
-// const formatter = buildFormatter(ruStrings);
-
 const { useState, useEffect } = require('react');
 const { useNavigate, useParams } = require('react-router-dom');
 const { server, serverFile } = require('../server');
 
 require('../styles/chat.css');
 
-const Error = require('./error').default;
+const FullscreenImage = require('./fullscreen_image.js').default;
 const Messages = require('./messages').default;
 const NewMessage = require('./new_message').default;
+const ChatHeader = require('./chat_header').default;
+const ChatMenu = require('./chat_menu').default;
 
 export default function Chat(props) {
-    const { userData, socket } = props;
+    const { userData, socket, setError, setConfirm } = props;
     const navigate = useNavigate();
     const params = useParams();
     const { id } = params;
 
+    const [chat, setChat] = useState(null);
     const [messages, setMessages] = useState(null);
     const [newMessage, setNewMessage] = useState('');
     const [isEdit, setIsEdit] = useState(false);
     const [editedMessage, setEditedMessage] = useState();
-    const [error, setError] = useState(false);
+    const [showChatMenu, setShowChatMenu] = useState({left: '100vw'});
+    const [count, setCount] = useState(0);
+    const [showFullscreenImage, setShowFullscreenImage] = useState(false);
+    const [selectImage, setSelectImage] = useState();
 
     useEffect(() => {
         if(!userData) return;
@@ -34,10 +34,13 @@ export default function Chat(props) {
 
         setNewMessage('');
 
-        socket.emit('getMessages', { id });
-        socket.on('getMessages', result => {
-            setMessages(result?.messages);
-        })
+        socket.on('update', getChat);
+        getMessages();
+
+        return () => {
+            socket.off('update');
+            socket.off('getMessages');
+        }
     }, [userData, id])
 
     useEffect(() => {
@@ -69,6 +72,26 @@ export default function Chat(props) {
             socket.off('editMessage');
         }
     }, [messages])
+
+    function getChat() {
+        server('/chat/getChat', { chatID: id, userID: userData._id })
+        .then(result => {
+            if(!result.error) setChat(result);
+            else setError([true, result.message]);
+        })
+    }
+
+    function getMessages() {
+        socket.emit('getMessages', { chatId: id, userId: userData._id, count });
+        socket.on('getMessages', result => {
+            if(result.length != 0) {
+                setCount(count + 1);
+                if(count != 0) setMessages([...messages, ...result]);
+                else setMessages(result);
+            }
+            socket.off('getMessages');
+        })
+    }
 
     function sendMessage() {
         if(newMessage.trim() == '') return;
@@ -111,29 +134,48 @@ export default function Chat(props) {
             </div>
         )
     }
+    else {
+        return (
+            <div className='page'>
+                {showFullscreenImage && <FullscreenImage selectImage={selectImage} images={[selectImage]} setShow={setShowFullscreenImage}/>}
+                <div className='page_title'>
+                    <ChatHeader
+                        chat={chat}
+                        showMenu={showChatMenu}
+                        setShowMenu={setShowChatMenu}
+                    />
+                </div>
 
-    return (
-        <div className='page'>
-            <Error params={[error, setError]}/>
+                <ChatMenu
+                    chat={chat}
+                    userData={userData}
+                    showMenu={showChatMenu}
+                    messages={messages}
+                    fullscreenImage={[showFullscreenImage, setShowFullscreenImage]}
+                    selectImage={[selectImage, setSelectImage]}
+                    setConfirm={setConfirm}
+                />
 
-            <div className='page_title'></div>
+                <Messages
+                    items={messages}
+                    getMessages={getMessages}
+                    user={userData._id}
+                    chat={id}
+                    editMessage={editMessage}
+                    deleteMessage={deleteMessage}
+                    fullscreenImage={[showFullscreenImage, setShowFullscreenImage]}
+                    selectImage={[selectImage, setSelectImage]}
+                    setConfirm={setConfirm}
+                />
 
-            <Messages
-                items={messages}
-                user={userData._id}
-                chat={id}
-                editMessage={editMessage}
-                deleteMessage={deleteMessage}
-            />
-
-            <NewMessage
-                value={newMessage}
-                setValue={setNewMessage}
-                isEdit={isEdit}
-                sendMessage={sendMessage}
-                sendFile={sendFile}
-            />
-
-        </div>
-    )
+                <NewMessage
+                    value={newMessage}
+                    setValue={setNewMessage}
+                    isEdit={isEdit}
+                    sendMessage={sendMessage}
+                    sendFile={sendFile}
+                />
+            </div>
+        )
+    }
 }

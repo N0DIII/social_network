@@ -24,18 +24,45 @@ io.on('connection', socket => {
         })
 
         socket.on('disconnect', async () => {
-            await User.updateOne({_id: id}, {online: false});
+            await User.updateOne({_id: id}, {online: false, last_online: new Date(Date.now())});
 
             const chats = await Chat.find({users: {$in: id}}, {_id: 1});
             chats.forEach(chat => io.to(chat._id.toString()).emit('update'));
         })
     })
 
-    socket.on('getMessages', async ({ id }) => {
+    socket.on('joinChat', id => {
+        socket.join(id);
+    })
+
+    socket.on('createPersonalChat', async ({ user1, user2 }) => {
+        const isChat = await Chat.findOne({ users: { $all: [user1, user2] } }, { _id: 1 });
+        if(isChat != null) {
+            return socket.emit('createPersonalChat', isChat._id);
+        }
+
+        const chat = new Chat({users: [user1, user2], type: 'personal'});
+
+        fs.mkdir(`./public/chats/${chat._id}`, async e => {
+            if(e) console.log(e)
+            else {
+                await chat.save();
+
+                socket.to(user2).emit('createdChat', chat._id);
+                socket.emit('createdChat', chat._id);
+                socket.emit('createPersonalChat', chat._id);
+            }
+        })
+    })
+
+    socket.on('getMessages', async ({ chatId, userId, count }) => {
         try {
-            const chat = await Chat.findOne({_id: id}, {_id: 1});
-            const messages = await Message.find({chat: id}, {chat: 0}).sort({$natural: -1});
-            socket.emit('getMessages', { messages, chat });
+            const chat = await Chat.findOne({_id: chatId}, {_id: 1});
+            await Chat.updateOne({_id: chatId}, {$pull: {notify: userId}});
+            socket.emit('update');
+
+            const messages = await Message.find({chat: chatId}, {chat: 0}).sort({$natural: -1}).skip(count * 20).limit(20);
+            socket.emit('getMessages', messages);
         }
         catch(e) {
             socket.emit('getMessages', false);
@@ -47,6 +74,12 @@ io.on('connection', socket => {
         await message.save();
 
         io.to(chat).emit('getMessage', message);
+
+        const chats = await Chat.findOne({_id: chat}, {users: 1});
+        chats.users.forEach(async notifyUser => {
+            if(notifyUser != user) await Chat.updateOne({_id: chat}, {$push: {notify: notifyUser}});
+        })
+        socket.to(chat).emit('update');
     })
 
     socket.on('deleteMessage', async ({ message, chat, filename }) => {
@@ -65,27 +98,6 @@ io.on('connection', socket => {
     })
 
     socket.on('sendFile', async message => {
-        // const buff = new Buffer.from(image.split(',')[1], 'base64').toString('binary');
-        // const type = (image.split('/')[1]).split(';')[0];
-
-        // const message = new Message({user, chat, created: new Date(), type: 'image', datatype: type});
-        // await message.save();
-
-        // fs.writeFile(`./public/chats/${chat}/${message._id}_image.${type}`, buff, 'binary', e => {if(e) console.log(e)});
-
         io.to(message.chat).emit('getMessage', message);
     })
-
-    // socket.on('sendVideo', async ({ user, chat, video}) => {
-    //     console.log(video)
-    //     const buff = new Buffer.from(video.split(',')[1], 'base64').toString('binary');
-    //     const type = (video.split('/')[1]).split(';')[0];
-
-    //     const message = new Message({user, chat, created: new Date(), type: 'video', datatype: type});
-    //     await message.save();
-
-    //     fs.writeFile(`./public/chats/${chat}/${message._id}_video.${type}`, buff, 'binary', e => {if(e) console.log(e)});
-
-    //     io.to(chat).emit('getMessage', message);
-    // })
 })

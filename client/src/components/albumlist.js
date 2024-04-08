@@ -4,10 +4,8 @@ const serverUrl = require('../server_url.js');
 require('../styles/albumlist.css');
 require('../styles/load.css');
 
-const deleteImg = require('../images/delete.png');
-
 export default function Albumlist(props) {
-    const { items, isOwner, deleteAlbum } = props;
+    const { items, isOwner, deleteAlbum, setConfirm } = props;
 
     if(items == null || items == undefined) {
         return(
@@ -39,7 +37,7 @@ export default function Albumlist(props) {
                     {items.length == 0 && <div className='albumlist_noAlbums'>Нет альбомов</div>}
                     {items.map((item, i) => 
                         <div className='albumlist_album' key={i}>
-                            {isOwner && <img className='albumlist_album_delete' src={deleteImg} onClick={() => deleteAlbum(item._id)}/>}
+                            {isOwner && <img className='albumlist_album_delete' src='/images/delete.png' onClick={() => setConfirm([true, deleteAlbum, [item._id]])}/>}
                             <div className='albumlist_album_name'>{item.name}</div>
                             <Link className='albumlist_album_link' to={`/album/${item._id}`}>
                                 {item.cover != null && <img className='albumlist_album_preview' src={serverUrl + item.cover}/>}

@@ -53,6 +53,7 @@
 }
 
 .sidemenu_item {
+    position: relative;
     display: flex;
     align-items: center;
     width: 100%;
@@ -91,4 +92,14 @@
 
 .sidemenu_item_name {
     margin-left: 10px;
+}
+
+.sidemenu_item_notify {
+    position: absolute;
+    top: 30px;
+    right: 5%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #4F52FF;
 }

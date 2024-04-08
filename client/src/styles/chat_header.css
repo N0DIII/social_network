@@ -1,0 +1,42 @@
+.chatHeader_wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: inherit;
+}
+
+.chatHeader_avatar {
+    height: 100%;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+.chatHeader_name {
+    padding: 0 10px;
+    font-size: 28px;
+    padding-bottom: 8px;
+}
+
+.chatHeader_menu {
+    position: absolute;
+    right: 10px;
+    height: 60%;
+    transition: transform 0.8s ease-in-out;
+}
+
+.chatHeader_menu:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.chatHeader_lastOnline {
+    position: absolute;
+    bottom: 5px;
+    font-size: 12px;
+}
+
+.chatHeader_lastOnline > time {
+    font-size: 12px;
+    padding-left: 4px;
+}

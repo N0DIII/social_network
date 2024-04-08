@@ -9,10 +9,9 @@ const LoadAvatar = require('./load_avatar.js').default;
 const Input = require('./input.js').default;
 const Select = require('./select.js').default;
 const Button = require('./button.js').default;
-const Error = require('./error.js').default;
 
 export default function ChangeUserData(props) {
-    const { userData } = props;
+    const { userData, setError, setConfirm } = props;
     const navigate = useNavigate();
     const params = useParams();
     const { id } = params;
@@ -23,7 +22,6 @@ export default function ChangeUserData(props) {
     const [sex, setSex] = useState();
     const [maxDate, setMaxDate] = useState('');
     const [errorUsername, setErrorUsername] = useState();
-    const [error, setError] = useState(false);
 
     useEffect(() => {
         if(!userData) return;
@@ -45,15 +43,21 @@ export default function ChangeUserData(props) {
         server('/user/changeUserData', {id: userData._id, avatar, username: username == userData.username ? false : username, birthday, sex})
         .then(result => {
             if(result.field == 0) setErrorUsername(result.message);
-            else if(result) window.location.reload();
-            else setError(true);
+            else if(!result.error) window.location.reload();
+            else setError([true, result.message]);
+        })
+    }
+
+    async function deleteAcc(id) {
+        server('/user/deleteUser', { id })
+        .then(result => {
+            if(!result.error) window.location.reload();
+            else setError([true, result.message]);
         })
     }
 
     return(
         <div className='page page_noTitle'>
-            <Error params={[error, setError]}/>
-
             <div className='changeUserData_wrapper'>
                 <div className='changeUserData_avatar'>
                     <LoadAvatar src={`${serverUrl}/users/${id}/avatar.png`} setAvatarUrl={setAvatar}/>
@@ -69,6 +73,7 @@ export default function ChangeUserData(props) {
                     />
                     <Input type='date' placeholder='Дата рождения' value={birthday} setValue={setBirthday} min='1930-01-01' max={maxDate}/>
                     <Button title='Сохранить' onclick={changeData}/>
+                    <Button title='Удалить аккаунт' onclick={() => setConfirm([true, deleteAcc, [userData._id]])}/>
                 </div>
             </div>
         </div>
