@@ -130,7 +130,7 @@ export default function Friends(props) {
                     <div className='friends_navigate_item' onClick={() => setPage('users')} style={page == 'users' ? {borderBottom: '3px solid #8551FF'} : {}}>Все пользователи</div>
                 </div>
 
-                <div className='friends_items_wrapper' style={page == 'friends' ? {left: '100%'} : page == 'requests' ? {left: '0'} : {left: '-100%'}}>
+                <div className='friends_items_wrapper' style={page == 'friends' ? {left: '0'} : page == 'requests' ? {left: '-100%'} : {left: '-200%'}}>
                     <Friendslist items={friends}/>
                     <Friendslist items={requests}/>
                     <Friendslist items={users}/>

@@ -37,3 +37,10 @@
     cursor: pointer;
     color: #8551FF;
 }
+
+@media(max-width: 800px) {
+    .form {
+        padding: 0 15px;
+        background: none;
+    }
+}

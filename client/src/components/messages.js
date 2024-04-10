@@ -62,7 +62,7 @@ export default function Messages(props) {
             </div>
         )
     }
-    if(items.length == 0) {
+    else if(items.length == 0) {
         return(
             <div className='messages_wrapper'>
                 <div className='messages_noMessages'>Сообщений пока нет</div>

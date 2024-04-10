@@ -41,13 +41,13 @@
 }
 
 .input_error:hover {
-    width: 300px;
+    width: 100%;
 }
 
 .input_error_text {
     position: absolute;
     left: 30px;
-    width: 300px;
+    width: 500px;
     color: red;
     font-size: 16px;
     margin: 0 5px;

@@ -1,9 +1,7 @@
 .friends_wrapper {
     position: relative;
     width: calc(100% - 40px);
-    display: grid;
-    justify-items: center;
-    margin: 20px;
+    margin: 80px 20px;
     overflow: hidden;
 }
 
@@ -95,4 +93,27 @@
     display: flex;
     width: 300%;
     transition: left 0.5s ease-in-out;
+}
+
+@media(max-width: 800px) {
+    .friends_wrapper {
+        width: 100vw;
+        margin: 70px 0;
+        display: block;
+    }
+
+    .friends_navigate_wrapper {
+        width: 100%;
+    }
+
+    .friends_navigate_item {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .friends_block_item {
+        width: calc(100% - 20px);
+        margin: 10px;
+    }
 }

@@ -23,6 +23,7 @@
     justify-content: center;
     width: max-content;
     text-align: center;
+    line-height: 24px;
     z-index: 1000;
 }
 

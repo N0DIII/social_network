@@ -9,6 +9,7 @@ const Messages = require('./messages').default;
 const NewMessage = require('./new_message').default;
 const ChatHeader = require('./chat_header').default;
 const ChatMenu = require('./chat_menu').default;
+const ChatInvite = require('./chat_invite').default;
 
 export default function Chat(props) {
     const { userData, socket, setError, setConfirm } = props;
@@ -22,9 +23,11 @@ export default function Chat(props) {
     const [isEdit, setIsEdit] = useState(false);
     const [editedMessage, setEditedMessage] = useState();
     const [showChatMenu, setShowChatMenu] = useState({left: '100vw'});
-    const [count, setCount] = useState(0);
     const [showFullscreenImage, setShowFullscreenImage] = useState(false);
     const [selectImage, setSelectImage] = useState();
+    const [showInvite, setShowInvite] = useState(false);
+
+    let count = 0;
 
     useEffect(() => {
         if(!userData) return;
@@ -33,21 +36,22 @@ export default function Chat(props) {
         if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
         setNewMessage('');
-
-        socket.on('update', getChat);
+        getChat(id);
+        socket.on('update', () => getChat(id));
+        count = 0;
         getMessages();
 
-        return () => {
-            socket.off('update');
-            socket.off('getMessages');
-        }
+        return () => socket.off('update');
     }, [userData, id])
 
     useEffect(() => {
         if(!userData) return;
 
         socket.on('getMessage', message => {
-            setMessages([message, ...messages]);
+            if(id == message.chat) {
+                setMessages([message, ...messages]);
+                socket.emit('readChat', { chatID: id, userID: userData._id });
+            }
         })
 
         socket.on('deleteMessage', ({ id }) => {
@@ -73,7 +77,7 @@ export default function Chat(props) {
         }
     }, [messages])
 
-    function getChat() {
+    function getChat(id) {
         server('/chat/getChat', { chatID: id, userID: userData._id })
         .then(result => {
             if(!result.error) setChat(result);
@@ -84,11 +88,11 @@ export default function Chat(props) {
     function getMessages() {
         socket.emit('getMessages', { chatId: id, userId: userData._id, count });
         socket.on('getMessages', result => {
-            if(result.length != 0) {
-                setCount(count + 1);
-                if(count != 0) setMessages([...messages, ...result]);
-                else setMessages(result);
-            }
+            if(count != 0) setMessages([...messages, ...result]);
+            else setMessages(result);
+            
+            if(result.length != 0) count += 1;
+        
             socket.off('getMessages');
         })
     }
@@ -127,7 +131,16 @@ export default function Chat(props) {
         setNewMessage(text);
     }
 
-    if(messages == undefined) {
+    if(chat == null) {
+        return(
+            <div className='page page_noTitle'>
+                <div className='load_wrapper'>
+                    <div className='load_div'></div>
+                </div>
+            </div>
+        )
+    }
+    else if(chat == undefined) {
         return(
             <div className='page page_noTitle'>
                 <div className='noChat'>Такого чата нет</div>
@@ -141,10 +154,21 @@ export default function Chat(props) {
                 <div className='page_title'>
                     <ChatHeader
                         chat={chat}
+                        id={userData._id}
                         showMenu={showChatMenu}
                         setShowMenu={setShowChatMenu}
+                        setError={setError}
+                        invite={[showInvite, setShowInvite]}
                     />
                 </div>
+
+                <ChatInvite
+                    id={userData._id}
+                    chat={chat}
+                    setShow={setShowInvite}
+                    socket={socket}
+                    style={showInvite}
+                />
 
                 <ChatMenu
                     chat={chat}

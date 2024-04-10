@@ -33,9 +33,9 @@ export default function ChatMenu(props) {
         <div className='chatMenu_wrapper' style={showMenu}>
             <div className='chatMenu_header'>
                 <div className='chatMenu_header_items'>
-                    <div className='chatMenu_header_item' style={page == 'photo' ? {borderBottom: '3px solid #8551FF'} : {}} onClick={() => {setPage('photo'); setItemsLeft({left: '0'})}}>Фотографии</div>
-                    <div className='chatMenu_header_item' style={page == 'video' ? {borderBottom: '3px solid #8551FF'} : {}} onClick={() => {setPage('video'); setItemsLeft({left: '-100%'})}}>Видео</div>
-                    <div className='chatMenu_header_item' style={page == 'file' ? {borderBottom: '3px solid #8551FF'} : {}} onClick={() => {setPage('file'); setItemsLeft({left: '-200%'})}}>Файлы</div>
+                    <div className='chatMenu_header_item picture' style={page == 'photo' ? {borderBottom: '3px solid #8551FF'} : {}} onClick={() => {setPage('photo'); setItemsLeft({left: '0'})}}>Фотографии</div>
+                    <div className='chatMenu_header_item video' style={page == 'video' ? {borderBottom: '3px solid #8551FF'} : {}} onClick={() => {setPage('video'); setItemsLeft({left: '-100%'})}}>Видео</div>
+                    <div className='chatMenu_header_item file' style={page == 'file' ? {borderBottom: '3px solid #8551FF'} : {}} onClick={() => {setPage('file'); setItemsLeft({left: '-200%'})}}>Файлы</div>
                 </div>
                 <div className='chatMenu_header_button'><Button title='Выйти из чата' onclick={() => setConfirm([true, deleteChat, [chat._id, userData._id]])}/></div>
             </div>

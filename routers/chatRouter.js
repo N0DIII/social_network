@@ -11,5 +11,6 @@ router.post('/getPhoto', controller.getPhoto);
 router.post('/getVideo', controller.getVideo);
 router.post('/getFile', controller.getFile);
 router.post('/deleteChat', controller.deleteChat);
+router.post('/editChat', controller.editChat);
 
 module.exports = router;

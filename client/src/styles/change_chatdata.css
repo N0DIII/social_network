@@ -1,0 +1,55 @@
+.changeChatdata_form {
+    position: fixed;
+    top: calc(50vh - 300px);
+    left: calc(50vw - 375px);
+    width: 750px;
+    height: 600px;
+    background: rgba(38, 40, 46, 0.8);
+    backdrop-filter: blur(30px);
+    border-radius: 20px;
+    animation-name: show;
+    animation-duration: 0.2s;
+}
+
+.changeChatdata_avatar_wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 20px 0;
+}
+
+.changeChatdata_avatar {
+    width: 400px;
+    height: 400px;
+}
+
+.changeChatdata_input {
+    padding: 2% 10%;
+    position: relative;
+    z-index: 4000;
+}
+
+.changeChatdata_button {
+    padding: 2% 20%;
+}
+
+@keyframes show {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@media(max-width: 800px) {
+    .changeChatdata_form {
+        width: 100vw;
+        left: 0;
+    }
+
+    .changeChatdata_avatar {
+        width: 300px;
+        height: 300px;
+    }
+}

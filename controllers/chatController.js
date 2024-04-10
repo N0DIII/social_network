@@ -122,13 +122,55 @@ class chatController {
 
             const chat = await Chat.findOne({ _id: chatID }, { users: 1 });
             if(chat.users.length != 1) await Chat.updateOne({ _id: chatID }, { $pull: { users: userID }, $push: { leave: userID } });
-            else await Chat.deleteOne({ _id: chatID });
+            else {
+                fs.rm(`./public/chats/${chatID}`, { recursive: true }, async e => {
+                    if(e) {
+                        console.log(e);
+                        return res.json({ error: true, message: 'Произошла ошибка при удалении альбома' });
+                    }
+                    else {
+                        await Chat.deleteOne({ _id: chatID });
+                        await Message.deleteMany({ chat: chatID });
+                    }
+                })
+            }
 
             res.json({ error: false });
         }
         catch(e) {
             console.log(e);
             res.json({ error: true, message: 'Произошла ошибка при выходе из чата' });
+        }
+    }
+
+    async editChat(req, res) {
+        try {
+            const { chat, name, avatar } = req.body;
+
+            if(name.trim() == '') return res.json({ error: true, message: 'Название чата не может быть пустым' });
+            if(name.length >= 15) return res.json({ error: true, message: 'Название чата не может быть длиннее 15 символов' });
+
+            await Chat.updateOne({ _id: chat }, { $set: { name } });
+
+            if(avatar != '') {
+                let buff = new Buffer.from(avatar.split(',')[1], 'base64').toString('binary');
+                fs.writeFile(`./public/chats/${chat}/avatar.png`, buff, 'binary', e => {
+                    if(e) {
+                        console.log(e);
+                        res.json({ error: true, message: 'Произошла ошибка при изменении аватара' });
+                    }
+                    else {
+                        res.json({ error: false });
+                    }
+                })
+            }
+            else {
+                res.json({ error: false });
+            }
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true, message: 'Произошла ошибка при изменении чата' });
         }
     }
 }
@@ -156,22 +198,23 @@ async function saveFile(req, res, type) {
 async function formChat(chatID, userID) {
     let chat = await Chat.findOne({ _id: chatID });
 
-    let type = chat.type, name = '', avatar = '', online = false, last_online = false;
+    let type = chat.type, name = '', avatar = '', online = false, last_online = false, creator = null;
     let notify = await Chat.findOne({ _id: chatID, notify: { $in: [userID] } }, { _id: 1 });
     if(notify != null) notify = true;
     else notify = false;
+    let users = chat.users;
 
     if(type == 'personal') {
         let user;
         if(chat.users.length == 1) {
             user = await User.findOne({ _id: chat.leave[0] });
-            avatar = chat.leave[0];
+            avatar = `/users/${chat.leave[0]}/avatar.png`;
         }
         else {
             for(let i = 0; i < chat.users.length; i++) {
                 if(chat.users[i].toString() != userID) {
                     user = await User.findOne({ _id: chat.users[i] }, { username: 1, online: 1, last_online: 1 });
-                    avatar = chat.users[i];
+                    avatar = `/users/${chat.users[i]}/avatar.png`;
                     break;
                 }
             }
@@ -180,12 +223,15 @@ async function formChat(chatID, userID) {
         name = user.username;
         online = user.online;
         last_online = user.last_online;
+        users = user._id;
     }
     else if(type == 'public') {
         avatar = `/chats/${chatID}/avatar.png`;
+        name = chat.name;
+        creator = chat.creator;
     }
 
-    return { _id: chatID, name, avatar, online, last_online, type, notify };
+    return { _id: chatID, name, avatar, online, last_online, type, notify, creator, users };
 }
 
 const getType = (str) => str.split('.')[str.split('.').length - 1];

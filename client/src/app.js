@@ -1,10 +1,9 @@
 const { useEffect, useState } = require('react');
 const { BrowserRouter, Route, Routes } = require('react-router-dom');
+const url = require('./server_url.js');
 
 const { io } = require('socket.io-client');
-const socket = io.connect(require('./web_socket_url.js'));
-
-const url = require('./server_url.js');
+const socket = io.connect(url);
 
 require('./styles/index.css');
 
@@ -36,14 +35,14 @@ export default function App() {
 
     async function auth() {
         return fetch(url + '/auth/authorization', {method: 'post', headers: {'Content-Type': 'application/json; charset=utf-8', 'authorization': localStorage.getItem('token')}})
-            .then(response => response.json())
+        .then(response => response.json())
     }
 
     return(
         <BrowserRouter>
             <div className='App'>
                 {userData && <RightMenu id={userData._id} username={userData.username}/>}
-                {userData && <LeftMenu id={userData._id} socket={socket}/>}
+                {userData && <LeftMenu id={userData._id} socket={socket} setError={setError}/>}
                 <Error params={[error, setError]}/>
                 <Confirm confirm={[confirm, setConfirm]}/>
                 <Routes>

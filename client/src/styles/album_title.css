@@ -66,3 +66,18 @@
 .album_input_wrapper:hover .album_input_back1 {
     opacity: 1;
 }
+
+@media(max-width: 800px) {
+    .album_input_wrapper {
+        background-image: url('../../public/images/plus.png');
+        background-size: 100% 100%;
+        width: 50px;
+        height: 40px;
+        padding: 0;
+        min-width: 0;
+    }
+
+    .album_input_wrapper > div {
+        opacity: 0;
+    }
+}

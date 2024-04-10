@@ -68,12 +68,12 @@ class userController {
             const { id, count, search, type } = req.body;
 
             if(type == 'friends') {
-                const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1}).skip(count * 10).limit(10);
+                const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
                 res.json({ error: false, items: friends });
             }
             else if(type == 'requests') {
                 const me = await User.findOne({_id: id}, {friend_requests: 1});
-                const requests = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1}).skip(count * 10).limit(10);
+                const requests = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
                 res.json({ error: false, items: requests });
             }
             else if(type == 'users') {
@@ -136,9 +136,7 @@ class userController {
         try {
             const { id } = req.body;
 
-            await User.updateOne({ _id: id }, { $set: { delete: true } });
-
-            res.json({ error: false });
+            await User.updateOne({ _id: id }, { $set: { delete: true, online: false } });
         }
         catch(e) {
             console.log(e);

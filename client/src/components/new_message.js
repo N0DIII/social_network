@@ -11,7 +11,7 @@ export default function NewMessage(props) {
         <div className='newMessage_wrapper'>
             <div className='newMessage'>
                 <img className='newMessage_addFile' src='/images/clip.png' onClick={() => setShowFileMenu(!showFileMenu)}/>
-                <input className='newMessage_text' type='text' value={value} placeholder='Введите сообщение' onChange={e => setValue(e.target.value)}/>
+                <input className='newMessage_text' type='text' value={value} placeholder='Введите сообщение' onChange={e => setValue(e.target.value)} onKeyDown={e => {if(e.key == 'Enter') sendMessage()}}/>
                 <img className='newMessage_send' src={isEdit ? '/images/checkMark.png' : '/images/send.png'} onClick={sendMessage}/>
             </div>
 

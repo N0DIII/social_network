@@ -21,3 +21,23 @@
     gap: 20px;
     width: 60%;
 }
+
+@media(max-width: 800px) {
+    .changeUserData_wrapper {
+        padding-bottom: 200px;
+    }
+
+    .changeUserData_avatar {
+        width: 300px;
+        height: 300px;
+    }
+
+    .changeUserData_avatar > div {
+        width: inherit;
+        height: inherit;
+    }
+
+    .changeUserData_inputs {
+        width: 90%;
+    }
+}

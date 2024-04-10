@@ -2,11 +2,11 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-const { secret } = require('../config');
+require('dotenv').config();
 
 const generateAccessToken = (id) => {
     const payload = { id };
-    return jwt.sign(payload, secret, { expiresIn: '30d' });
+    return jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '30d' });
 }
 
 class authController {
@@ -67,7 +67,7 @@ class authController {
             const token = req.headers.authorization;
             if(token == 'null') return res.json({ auth: false });
     
-            const decodedData = jwt.verify(token, secret);
+            const decodedData = jwt.verify(token, process.env.SECRET_KEY);
             const user = await User.findOne({ _id: decodedData.id }, { password: 0 });
 
             if(user) return res.json(user);

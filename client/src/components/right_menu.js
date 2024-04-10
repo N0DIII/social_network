@@ -10,12 +10,12 @@ export default function RightMenu(props) {
     const [style, setStyle] = useState({right: '0'});
 
     useEffect(() => {
-        if(localStorage.getItem('closeRightMenu') == '1') setStyle({right: '-22.9vw'});
+        if(localStorage.getItem('closeRightMenu') == '1') setStyle({right: '-100vw'});
     }, [])
 
     function closeMenu() {
         if(style.right == '0') {
-            setStyle({right: '-22.9vw'});
+            setStyle({right: '-100vw'});
             localStorage.setItem('closeRightMenu', '1');
             document.querySelector('.page').classList.add('closeRightMenu');
         }
@@ -24,6 +24,11 @@ export default function RightMenu(props) {
             localStorage.setItem('closeRightMenu', '0');
             document.querySelector('.page').classList.remove('closeRightMenu');
         }
+    }
+
+    function closeMobile() {
+        const isMobile = /Mobile|webOS|BlackBerry|IEMobile|MeeGo|mini|Fennec|Windows Phone|Android|iP(ad|od|hone)/i.test(navigator.userAgent);
+        if(isMobile) closeMenu();
     }
 
     function signOut() {
@@ -37,7 +42,7 @@ export default function RightMenu(props) {
                 <img className='sidemenu_userdata_avatar' src={`${serverUrl}/users/${id}/avatar.png`}/>
                 <div className='sidemenu_userdata_username'>{username}</div>
             </div>
-            <div className='sidemenu_items'>
+            <div className='sidemenu_items' onClick={closeMobile}>
                 <Link className='sidemenu_item' to='/'><div className='sidemenu_item_title'>Главная</div></Link>
                 <Link className='sidemenu_item' to='/groups'><div className='sidemenu_item_title'>Сообщества</div></Link>
                 <Link className='sidemenu_item' to='/friends'><div className='sidemenu_item_title'>Друзья</div></Link>

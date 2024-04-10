@@ -49,7 +49,9 @@
 }
 
 .sidemenu_items {
-    display: grid;
+    padding-bottom: 90px;
+    height: 100%;
+    overflow-y: scroll;
 }
 
 .sidemenu_item {
@@ -102,4 +104,55 @@
     height: 10px;
     border-radius: 50%;
     background: #4F52FF;
+}
+
+.sidemenu_newChat_wrapper {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0 20px;
+    bottom: 20px;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.sidemenu_newChat_input {
+    display: flex;
+    height: 50px;
+}
+
+.sidemenu_newChat_input > img {
+    height: 100%;
+}
+
+.sidemenu_newChat_input > img:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.sidemenu_newChat_button {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    padding: 0 20px;
+}
+
+@media(max-width: 800px) {
+    .sidemenu_wrapper {
+        width: 100vw;
+    }
+
+    .sidemenu_userdata {
+        justify-content: flex-end;
+        padding-right: 20px;
+        background: rgb(38, 40, 46);
+    }
+
+    .sidemenu_userdata:hover {
+        opacity: 1;
+    }
+
+    .sidemenu_items {
+        padding-bottom: 30vh;
+    }
 }

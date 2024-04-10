@@ -1,0 +1,75 @@
+.chatInvite_wrapper {
+    position: absolute;
+    z-index: 2998;
+    left: 5px;
+    height: calc(100vh - 95px);
+    width: 99%;
+    background: rgba(38, 40, 46, 0.8);
+    backdrop-filter: blur(30px);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: top 0.5s ease-in-out;
+}
+
+.chatInvite_noFriends {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #949AAF;
+    font-size: 30px;
+    font-style: italic;
+}
+
+.chatInvite_user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    padding: 10px;
+    margin: 0 20px;
+    border-radius: 20px;
+}
+
+.chatInvite_user > img {
+    height: 100%;
+    padding: 5px;
+}
+
+.chatInvite_userData {
+    display: flex;
+    align-items: center;
+    height: inherit;
+}
+
+.chatInvite_userData > img {
+    height: 100%;
+    padding: 5px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.chatInvite_user:hover {
+    cursor: pointer;
+    background: #353941;
+}
+
+.chatInvite_button_wrapper {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.chatInvite_button {
+    min-width: 300px;
+    width: 40%;
+    padding: 10px;
+}
+
+@media(max-width: 800px) {
+    .chatInvite_wrapper {
+        margin-top: 70px;
+        height: calc(100vh - 150px);
+    }
+}

@@ -1,6 +1,4 @@
 /client/node_modules
-/server/node_modules
-/server/mongodb
-/server/public/chats
-/server/public/groups
-/server/public/users
+/node_modules
+/mongodb
+/public

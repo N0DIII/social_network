@@ -3,7 +3,7 @@
     flex-direction: column-reverse;
     width: 100%;
     height: calc(100% - 80px);
-    padding: 0 5%;
+    padding: 100px 5% 0 5%;
     overflow-y: scroll;
 }
 
@@ -109,4 +109,10 @@
 
 .messageDate {
     padding-top: 50px;
+}
+
+@media(max-width: 800px) {
+    .messages_wrapper {
+        height: calc(100vh - 160px);
+    }
 }
