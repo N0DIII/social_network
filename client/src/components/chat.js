@@ -1,4 +1,4 @@
-const { useState, useEffect } = require('react');
+const { useState, useEffect, useCallback } = require('react');
 const { useNavigate, useParams } = require('react-router-dom');
 const { server, serverFile } = require('../server');
 
@@ -27,7 +27,9 @@ export default function Chat(props) {
     const [selectImage, setSelectImage] = useState();
     const [showInvite, setShowInvite] = useState(false);
 
-    let count = 0;
+    const [count, setCount] = useState(0);
+    const [maxCount, setMaxCount] = useState(1);
+    const [fetching, setFetching] = useState(true);
 
     useEffect(() => {
         if(!userData) return;
@@ -37,11 +39,9 @@ export default function Chat(props) {
 
         setNewMessage('');
         getChat(id);
-        socket.on('update', () => getChat(id));
-        count = 0;
-        getMessages();
-
-        return () => socket.off('update');
+        setCount(0);
+        setMaxCount(1);
+        setFetching(true);
     }, [userData, id])
 
     useEffect(() => {
@@ -75,25 +75,37 @@ export default function Chat(props) {
             socket.off('deleteMessage');
             socket.off('editMessage');
         }
-    }, [messages])
+    }, [messages, id])
+
+    useEffect(() => {
+        if(fetching) {
+            server('/chat/getMessages', { chatID: id, count })
+            .then(result => {
+                if(count != 0) setMessages([...messages, ...result.messages]);
+                else setMessages(result.messages);
+
+                setCount(prevState => prevState + 1);
+                setMaxCount(result.maxCount);
+            })
+
+            setFetching(false);
+        }
+    }, [fetching])
+
+    const scroll = useCallback(e => {
+        if(e.target.scrollHeight - (Math.abs(e.target.scrollTop) + window.innerHeight) < 100 && messages.length < maxCount) {
+            setFetching(true);
+        }
+    }, [maxCount, messages])
 
     function getChat(id) {
         server('/chat/getChat', { chatID: id, userID: userData._id })
         .then(result => {
-            if(!result.error) setChat(result);
+            if(!result.error) {
+                setChat(result);
+                socket.emit('readChat', { chatID: id, userID: userData._id });
+            }
             else setError([true, result.message]);
-        })
-    }
-
-    function getMessages() {
-        socket.emit('getMessages', { chatId: id, userId: userData._id, count });
-        socket.on('getMessages', result => {
-            if(count != 0) setMessages([...messages, ...result]);
-            else setMessages(result);
-            
-            if(result.length != 0) count += 1;
-        
-            socket.off('getMessages');
         })
     }
 
@@ -182,9 +194,9 @@ export default function Chat(props) {
 
                 <Messages
                     items={messages}
-                    getMessages={getMessages}
+                    scroll={scroll}
                     user={userData._id}
-                    chat={id}
+                    chat={chat}
                     editMessage={editMessage}
                     deleteMessage={deleteMessage}
                     fullscreenImage={[showFullscreenImage, setShowFullscreenImage]}

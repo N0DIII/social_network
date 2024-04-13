@@ -1,8 +1,10 @@
-const { Schema, model, ObjectId } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const Group = new Schema({
-    name: {type: String},
-    users: [{type: ObjectId, ref: 'User'}]
-})
+    name: String,
+    creator: Schema.Types.ObjectId,
+    created: Date,
+    users: [Schema.Types.ObjectId]
+}, { versionKey: false })
 
 module.exports = model('Group', Group);

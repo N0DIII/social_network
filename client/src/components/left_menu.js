@@ -20,22 +20,45 @@ export default function LeftMenu(props) {
 
     useEffect(() => {
         if(localStorage.getItem('closeLeftMenu') == '1') setStyle({left: '-100vw'});
-        server('/chat/getChats', { id }).then(result => setChats(result));
+        server('/chat/getChats', { id }).then(result => setChats([...result.filter(chat => chat.notify != 0), ...result.filter(chat => chat.notify == 0)]));
+    }, [])
 
-        socket.on('update', () => {
-            server('/chat/getChats', { id }).then(result => setChats(result));
+    useEffect(() => {
+        function chatOnline(id, bool) {
+            let chat = chats.find(item => item._id == id && item.type == 'personal');
+            if(chat == undefined) return;
+            let index = chats.indexOf(chat);
+            chat.online = bool;
+            setChats([...chats.slice(0, index), chat, ...chats.slice(index + 1, chats.length)]);
+        }
+
+        socket.on('userOnline', id => chatOnline(id, true));
+        socket.on('userOffline', id => chatOnline(id, false));
+
+        socket.on('newMessage', notify => {
+            const updChats = chats.map(chat => {
+                if(chat._id == notify.chat) {
+                    let updChat = chat;
+                    updChat.notify = notify.count;
+                    return updChat;
+                }
+                else return chat;
+            })
+            setChats([...updChats.filter(chat => chat.notify != 0), ...updChats.filter(chat => chat.notify == 0)]);
         })
 
-        socket.on('createdChat', id => {
-            server('/chat/getChats', { id }).then(result => setChats(result));
-            socket.emit('joinChat', id);
+        socket.on('createdChat', chat => {
+            server('/chat/getChat', { chatID: chat, userID: id }).then(result => setChats([...chats, result]));
+            socket.emit('joinChat', chat);
         })
 
         return () => {
-            socket.off('update');
+            socket.off('userOnline');
+            socket.off('userOffline');
+            socket.off('newMessage');
             socket.off('createdChat');
         }
-    }, [])
+    }, [chats])
 
     function closeMenu() {
         if(style.left == '0') {
@@ -78,7 +101,7 @@ export default function LeftMenu(props) {
                             {chat.online && <div className='sidemenu_item_avatar_status'></div>}
                         </div>
                         <div className='sidemenu_item_name'>{chat.name}</div>
-                        {chat.notify && <div className='sidemenu_item_notify'></div>}
+                        {chat.notify != undefined && chat.notify != 0 && <div className='sidemenu_item_notify'>{chat.notify}</div>}
                     </Link>
                 )}
             </div>

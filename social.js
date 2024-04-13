@@ -29,7 +29,7 @@ const io = new Server(server, {
 app.use(cors({origin: '*'}));
 app.use(bodyParser.json({limit: '500mb'}));
 app.use(express.static('public'));
-app.use(express.static('build'));
+app.use(express.static('./client/build'));
 app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
@@ -64,14 +64,14 @@ io.on('connection', socket => {
         const chats = await Chat.find({users: {$in: id}}, {_id: 1});
         chats.forEach(chat => {
             socket.join(chat._id.toString());
-            socket.to(chat._id.toString()).emit('update');
+            socket.to(chat._id.toString()).emit('userOnline', chat._id);
         })
 
         socket.on('disconnect', async () => {
             await User.updateOne({_id: id}, {online: false, last_online: new Date(Date.now())});
 
             const chats = await Chat.find({users: {$in: id}}, {_id: 1});
-            chats.forEach(chat => io.to(chat._id.toString()).emit('update'));
+            chats.forEach(chat => io.to(chat._id.toString()).emit('userOffline', chat._id));
         })
     })
 
@@ -89,7 +89,10 @@ io.on('connection', socket => {
             if(e) console.log(e)
             else {
                 await chat.save();
+                await User.updateOne({ _id: user1 }, { $push: { notify: { chat: chat._id, count: 0 } } });
+                await User.updateOne({ _id: user2 }, { $push: { notify: { chat: chat._id, count: 0 } } });
 
+                socket.join(chat._id.toString());
                 socket.to(user2).emit('createdChat', chat._id);
                 socket.emit('createdChat', chat._id);
                 socket.emit('createPersonalChat', chat._id);
@@ -119,7 +122,9 @@ io.on('connection', socket => {
                     }
                     else {
                         await chat.save();
+                        await User.updateOne({ _id: user }, { $push: { notify: { chat: chat._id, notify: 0 } } });
 
+                        socket.join(chat._id.toString());
                         socket.emit('createdChat', chat._id);
                         socket.emit('createPublicChat', { error: false, id: chat._id });
                     }
@@ -128,35 +133,37 @@ io.on('connection', socket => {
         })
     })
 
-    socket.on('getMessages', async ({ chatId, userId, count }) => {
-        try {
-            await Chat.updateOne({_id: chatId}, {$pull: {notify: userId}});
-            socket.emit('update');
-
-            let messages = await Message.find({chat: chatId}, {chat: 0}).sort({$natural: -1}).skip(count * 20).limit(20);
-            socket.emit('getMessages', messages);
-        }
-        catch(e) {
-            socket.emit('getMessages', false);
-        }
-    })
-
     socket.on('sendMessage', async ({ user, chat, text }) => {
-        const message = new Message({text: text, user: user, chat: chat, created: new Date(), type: 'text'});
+        let message = new Message({text: text, user: user, chat: chat, created: new Date(), type: 'text'});
         await message.save();
+
+        const username = await User.findOne({ _id: user }, { username: 1 });
+        message = { ...message._doc, username: username.username };
 
         io.to(chat).emit('getMessage', message);
 
-        const chats = await Chat.findOne({_id: chat}, {users: 1});
-        chats.users.forEach(async notifyUser => {
-            if(notifyUser != user) await Chat.updateOne({_id: chat}, {$push: {notify: notifyUser}});
+        const _chat = await Chat.findOne({_id: chat}, {users: 1});
+        _chat.users.forEach(async notifyUser => {
+            if(notifyUser != user) {
+                let notify = await User.findOne({ _id: notifyUser }, { notify: 1 });
+                notify = notify.notify.map(item => {
+                    if(item.chat == chat) return { chat, count: item.count + 1 };
+                    else return item;
+                })
+                await User.updateOne({ _id: notifyUser }, { $set: { notify }});
+                socket.to(notifyUser.toString()).emit('newMessage', notify.find(item => item.chat == chat));
+            }
         })
-        socket.to(chat).emit('update');
     })
 
     socket.on('readChat', async ({ chatID, userID }) => {
-        await Chat.updateOne({ _id: chatID }, { $pull: { notify: userID } });
-        socket.emit('update')
+        const user = await User.findOne({ _id: userID }, { notify: 1 });
+        const notify = user.notify.map(item => {
+            if(item.chat.toString() == chatID) return { _id: item._id, chat: item.chat, count: 0};
+            else return item;
+        })
+        await User.updateOne({ _id: userID }, { $set: { notify } });
+        socket.emit('newMessage', notify.find(item => item.chat.toString() == chatID));
     })
 
     socket.on('deleteMessage', async ({ message, chat, filename }) => {
@@ -178,11 +185,15 @@ io.on('connection', socket => {
         io.to(message.chat).emit('getMessage', message);
     })
 
-    socket.on('addUsersInPublicChat', ({ users, chat }) => {
+    socket.on('addUsersInPublicChat', async ({ users, chat }) => {
+        let already = await Chat.findOne({ _id: chat }, { users: 1 });
+        already.users.map(item => item.toString());
         users.forEach(async user => {
-            await Chat.updateOne({ _id: chat }, { $addToSet: { users: user._id } });
-            socket.to(user._id).emit('update');
-            socket.to(user._id).emit('createdChat', chat);
+            if(!already.users.includes(user._id)) {
+                await Chat.updateOne({ _id: chat }, { $addToSet: { users: user._id } });
+                await User.updateMany({ _id: { $in: users } }, { $addToSet: { notify: { chat, count: 0 } } });
+                socket.to(user._id).emit('createdChat', chat);
+            }
         })
     })
 })

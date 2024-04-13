@@ -1,36 +1,9 @@
-const { useState } = require('react');
-
 const serverUrl = require('../server_url.js');
 
 require('../styles/messages.css');
 
 export default function Messages(props) {
-    const { items, getMessages, user, chat, editMessage, deleteMessage, fullscreenImage, selectImage, setConfirm } = props;
-
-    function scroll(e) {
-        const scrollTop = e.target.scrollTop;
-        const clientHeight = e.target.clientHeight;
-        const scrollHeight = e.target.scrollHeight;
-        const dif = scrollHeight / 1.1;
-
-        if(scrollTop + clientHeight <= scrollHeight - dif) {
-            getMessages();
-        }
-    }
-
-    function throttle(callee, timeout) {
-        let timer = null;
-      
-        return function perform(...args) {
-            if (timer) return;
-        
-            timer = setTimeout(() => {
-                callee(...args);
-                clearTimeout(timer);
-                timer = null;
-            }, timeout)
-        }
-    }
+    const { items, scroll, user, chat, editMessage, deleteMessage, fullscreenImage, selectImage, setConfirm } = props;
 
     function getTime(str) {
         const date = new Date(str);
@@ -71,22 +44,24 @@ export default function Messages(props) {
     }
     else {
         return(
-            <div className='messages_wrapper' onScroll={throttle(scroll, 250)} onResize={throttle(scroll, 250)}>
+            <div className='messages_wrapper' onScroll={scroll} onResize={scroll}>
                 {items.map((item, i) => {
                     const showData = i == items.length - 1 || (i != items.length - 1 && items[i].created.split('T')[0] != items[i + 1].created.split('T')[0]) ? true : false;
+                    const showName = chat.type == 'public' && item.user != user && i != items.length - 1 && items[i].username != items[i + 1].username ? true : i == items.length - 1 ? true : false;
                     return(
                         <div className={`message_wrapper${item.user == user ? ' myMessage' : ''}${showData ? ' messageDate' : ''}`} key={i}>
                             {showData && <div className='message_date'>{getDate(item.created)}</div>}
                             <div className='message'>
+                                {showName && <div className='message_username'>{item.username}</div>}
                                 {item.type == 'text' && <div className='message_text'>{item.text}</div>}
-                                {item.type == 'image' && <img className='message_image' src={`${serverUrl}/chats/${chat}/${getName(item)}`} onClick={() => {selectImage[1]({ src: `/chats/${chat}/${getName(item)}`, type: 'image'}); fullscreenImage[1](!fullscreenImage[0])}}/>}
+                                {item.type == 'image' && <img className='message_image' src={`${serverUrl}/chats/${chat._id}/${getName(item)}`} onClick={() => {selectImage[1]({ src: `/chats/${chat._id}/${getName(item)}`, type: 'image'}); fullscreenImage[1](!fullscreenImage[0])}}/>}
                                 {item.type == 'video' &&
-                                <div className='message_video' onClick={() => {selectImage[1]({ src: `/chats/${chat}/${getName(item)}`, type: 'video'}); fullscreenImage[1](!fullscreenImage[0])}}>
+                                <div className='message_video' onClick={() => {selectImage[1]({ src: `/chats/${chat._id}/${getName(item)}`, type: 'video'}); fullscreenImage[1](!fullscreenImage[0])}}>
                                     <img src='/images/play.png'/>
-                                    <video src={`${serverUrl}/chats/${chat}/${getName(item)}`}/>
+                                    <video src={`${serverUrl}/chats/${chat._id}/${getName(item)}`}/>
                                 </div>}
                                 {item.type == 'file' &&
-                                <a className='message_file' href={`${serverUrl}/chats/${chat}/${getName(item)}`}>
+                                <a className='message_file' href={`${serverUrl}/chats/${chat._id}/${getName(item)}`}>
                                     <img src='/images/file.png'/>
                                     {item.filename}
                                 </a>}

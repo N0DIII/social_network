@@ -1,10 +1,10 @@
-const { Schema, model, ObjectId } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const Photo = new Schema({
-    album: {type: ObjectId, ref: 'Album'},
-    user: {type: ObjectId, ref: 'User'},
-    type: {type: String},
-    name: {type: String}
-})
+    album: Schema.Types.ObjectId,
+    user: Schema.Types.ObjectId,
+    type: String,
+    name: String
+}, { versionKey: false })
 
 module.exports = model('Photo', Photo);

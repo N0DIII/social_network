@@ -121,7 +121,12 @@ class chatController {
             const { chatID, userID } = req.body;
 
             const chat = await Chat.findOne({ _id: chatID }, { users: 1 });
-            if(chat.users.length != 1) await Chat.updateOne({ _id: chatID }, { $pull: { users: userID }, $push: { leave: userID } });
+            if(chat.users.length != 1) {
+                await Chat.updateOne({ _id: chatID }, { $pull: { users: userID }, $push: { leave: userID } });
+                let notify = await User.findOne({ _id: userID }, { notify: 1 });
+                notify = notify.notify.filter(item => item.chat != chatID);
+                await User.updateOne({ _id: userID }, { $set: { notify } });
+            }
             else {
                 fs.rm(`./public/chats/${chatID}`, { recursive: true }, async e => {
                     if(e) {
@@ -131,6 +136,9 @@ class chatController {
                     else {
                         await Chat.deleteOne({ _id: chatID });
                         await Message.deleteMany({ chat: chatID });
+                        let notify = await User.findOne({ _id: userID }, { notify: 1 });
+                        notify = notify.notify.filter(item => item.chat != chatID);
+                        await User.updateOne({ _id: userID }, { $set: { notify } });
                     }
                 })
             }
@@ -173,6 +181,27 @@ class chatController {
             res.json({ error: true, message: 'Произошла ошибка при изменении чата' });
         }
     }
+
+    async getMessages(req, res) {
+        try {
+            const { chatID, count } = req.body;
+
+            let messages = await Message.find({ chat: chatID }, { chat: 0 }).sort({ $natural: -1 }).skip(count * 20).limit(20);
+
+            for(let i = 0; i < messages.length; i++) {
+                const user = await User.findOne({ _id: messages[i].user }, { username: 1 });
+                messages[i] = { ...messages[i]._doc, username: user.username };
+            }
+
+            const maxCount = await Message.find({ chat: chatID }).countDocuments();
+
+            res.json({ messages, maxCount });
+        }
+        catch(e) {
+            console.log(e);
+            res.json(false);
+        }
+    }
 }
 
 async function saveFile(req, res, type) {
@@ -196,13 +225,14 @@ async function saveFile(req, res, type) {
 }
 
 async function formChat(chatID, userID) {
-    let chat = await Chat.findOne({ _id: chatID });
+    let chat = await Chat.findOne({ _id: chatID, users: userID });
+    if(chat == null) return { error: true, message: 'Вы не состоите в этом чате' };
 
     let type = chat.type, name = '', avatar = '', online = false, last_online = false, creator = null;
-    let notify = await Chat.findOne({ _id: chatID, notify: { $in: [userID] } }, { _id: 1 });
-    if(notify != null) notify = true;
-    else notify = false;
     let users = chat.users;
+    let notify = await User.findOne({ _id: userID }, { notify: 1 });
+    notify = notify.notify.find(item => item.chat.toString() == chatID);
+    notify = notify?.count;
 
     if(type == 'personal') {
         let user;
@@ -231,7 +261,7 @@ async function formChat(chatID, userID) {
         creator = chat.creator;
     }
 
-    return { _id: chatID, name, avatar, online, last_online, type, notify, creator, users };
+    return { _id: chatID, name, avatar, online, last_online, type, creator, users, notify };
 }
 
 const getType = (str) => str.split('.')[str.split('.').length - 1];

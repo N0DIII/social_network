@@ -1,5 +1,5 @@
-const { useState, useEffect } = require('react');
-const { useNavigate } = require('react-router-dom');
+const { useState, useEffect, useCallback } = require('react');
+const { useNavigate, useSearchParams, Link } = require('react-router-dom');
 const { server } = require('../server.js');
 
 require('../styles/friends.css');
@@ -9,17 +9,16 @@ const Friendslist = require('./friendslist.js').default;
 
 export default function Friends(props) {
     const { userData, setError } = props;
+
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const [search, setSearch] = useState('');
-    const [friends, setFriends] = useState(null);
-    const [requests, setRequests] = useState(null);
-    const [users, setUsers] = useState(null);
+    const [items, setItems] = useState(null);
 
-    const [countFriends, setCountFriends] = useState(0);
-    const [countRequests, setCountRequests] = useState(0);
-    const [countUsers, setCountUsers] = useState(0);
-    const [page, setPage] = useState('friends');
+    const [count, setCount] = useState(0);
+    const [maxCount, setMaxCount] = useState(1);
+    const [fetching, setFetching] = useState(true);
 
     useEffect(() => {
         if(!userData) return;
@@ -27,97 +26,40 @@ export default function Friends(props) {
         if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
         if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
-        server('/user/getItems', { id: userData._id, count: 0, search, type: 'friends' })
-        .then(result => {
-            if(!result.error) {
-                if(result.items.length != 0) setCountFriends(countFriends + 1);
-                setCountFriends(1);
-                setFriends(result.items);
-            }
-            else setError([true, result.message]);
-        })
+        setItems(null);
+        setFetching(true);
+        setCount(0);
+        setMaxCount(1);
+    }, [userData, search, searchParams])
 
-        server('/user/getItems', { id: userData._id, count: 0, search, type: 'requests' })
-        .then(result => {
-            if(!result.error) {
-                if(result.items.length != 0) setCountRequests(countRequests + 1);
-                setCountRequests(1);
-                setRequests(result.items);
-            }
-            else setError([true, result.message]);
-        })
+    useEffect(() => {
+        if(!userData) return;
 
-        server('/user/getItems', { id: userData._id, count: 0, search, type: 'users' })
-        .then(result => {
-            if(!result.error) {
-                if(result.items.length != 0) setCountUsers(countUsers + 1);
-                setCountUsers(1);
-                setUsers(result.items);
-            }
-            else setError([true, result.message]);
-        })
-    }, [userData, search, page])
+        if(fetching) {
+            server('/user/getItems', { id: userData._id, count, search, type: searchParams.get('page') })
+            .then(result => {
+                if(!result.error) {
+                    if(count != 0) setItems([...items, ...result.items]);
+                    else setTimeout(() => setItems(result.items), 500);
 
+                    setCount(prevState => prevState + 1);
+                    setMaxCount(result.maxCount);
+                }
+                else setError([true, result.message]);
+            })
 
-    function scroll(e) {
-        const scrollTop = e.target.scrollTop;
-        const clientHeight = e.target.clientHeight;
-        const scrollHeight = e.target.scrollHeight;
-        const dif = scrollHeight / 4;
-
-        if(scrollTop + clientHeight >= scrollHeight - dif) {
-            getItems();
+            setFetching(false);
         }
-    }
+    }, [fetching, userData])
 
-    function throttle(callee, timeout) {
-        let timer = null;
-      
-        return function perform(...args) {
-            if (timer) return;
-        
-            timer = setTimeout(() => {
-                callee(...args);
-                clearTimeout(timer);
-                timer = null;
-            }, timeout)
+    const scroll = useCallback(e => {
+        if(e.target.scrollHeight - (Math.abs(e.target.scrollTop) + window.innerHeight) < 100 && items.length < maxCount) {
+            setFetching(true);
         }
-    }
-
-    async function getItems() {
-        if(page == 'friends')
-            server('/user/getItems', { id: userData._id, count: countFriends, search, type: 'friends' })
-            .then(result => {
-                if(!result.error) {
-                    if(result.items.length != 0) setCountFriends(countFriends + 1);
-                    setFriends([...friends, ...result.items]);
-                }
-                else setError([true, result.message]);
-            })
-
-        if(page == 'requests')
-            server('/user/getItems', { id: userData._id, count: countRequests, search, type: 'requests' })
-            .then(result => {
-                if(!result.error) {
-                    if(result.items.length != 0) setCountRequests(countRequests + 1);
-                    setRequests([...requests, ...result.items]);
-                }
-                else setError([true, result.message]);
-            })
-
-        if(page == 'users')
-            server('/user/getItems', { id: userData._id, count: countUsers, search, type: 'users' })
-            .then(result => {
-                if(!result.error) {
-                    if(result.items.length != 0) setCountUsers(countUsers + 1);
-                    setUsers([...users, ...result.items]);
-                }
-                else setError([true, result.message]);
-            })
-    }
+    }, [maxCount, items])
 
     return(
-        <div className='page' onScroll={throttle(scroll, 250)} onResize={throttle(scroll, 250)}>
+        <div className='page' onScroll={scroll} onResize={scroll}>
             <div className='page_title'>
                 <Search setValue={setSearch}/>
             </div>
@@ -125,15 +67,15 @@ export default function Friends(props) {
             <div className='friends_wrapper'>
 
                 <div className='friends_navigate_wrapper'>
-                    <div className='friends_navigate_item' onClick={() => setPage('friends')} style={page == 'friends' ? {borderBottom: '3px solid #8551FF'} : {}}>Друзья</div>
-                    <div className='friends_navigate_item' onClick={() => setPage('requests')} style={page == 'requests' ? {borderBottom: '3px solid #8551FF'} : {}}>Приглашения</div>
-                    <div className='friends_navigate_item' onClick={() => setPage('users')} style={page == 'users' ? {borderBottom: '3px solid #8551FF'} : {}}>Все пользователи</div>
+                    <Link className='friends_navigate_item' to={`/friends?page=friends`} style={searchParams.get('page') == 'friends' ? {borderBottom: '3px solid #8551FF'} : {}}>Друзья</Link>
+                    <Link className='friends_navigate_item' to={`/friends?page=requests`} style={searchParams.get('page') == 'requests' ? {borderBottom: '3px solid #8551FF'} : {}}>Приглашения</Link>
+                    <Link className='friends_navigate_item' to={`/friends?page=users`} style={searchParams.get('page') == 'users' ? {borderBottom: '3px solid #8551FF'} : {}}>Все пользователи</Link>
                 </div>
 
-                <div className='friends_items_wrapper' style={page == 'friends' ? {left: '0'} : page == 'requests' ? {left: '-100%'} : {left: '-200%'}}>
-                    <Friendslist items={friends}/>
-                    <Friendslist items={requests}/>
-                    <Friendslist items={users}/>
+                <div className='friends_items_wrapper' style={searchParams.get('page') == 'friends' ? {left: '0'} : searchParams.get('page') == 'requests' ? {left: '-100%'} : {left: '-200%'}}>
+                    <Friendslist items={items}/>
+                    <Friendslist items={items}/>
+                    <Friendslist items={items}/>
                 </div>
             </div>
         </div>

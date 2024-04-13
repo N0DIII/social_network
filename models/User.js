@@ -1,15 +1,16 @@
-const { Schema, model, ObjectId } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const User = new Schema({
-    username: {type: String, unique: true, required: true},
-    password: {type: String, required: true},
-    sex: {type: String, ref: 'Sex'},
-    birthday: {type: Date},
-    friends: [{type: ObjectId, ref: 'User'}],
-    friend_requests: [{type: ObjectId, ref: 'User'}],
-    online: {type: Boolean},
-    last_online: {type: Date},
-    delete: {type: Boolean}
-})
+    username: String,
+    password: String,
+    sex: String,
+    birthday: Date,
+    friends: [Schema.Types.ObjectId],
+    friend_requests: [Schema.Types.ObjectId],
+    online: Boolean,
+    last_online: Date,
+    delete: Boolean,
+    notify: [{ chat: Schema.Types.ObjectId, count: Number }],
+}, { versionKey: false })
 
 module.exports = model('User', User);

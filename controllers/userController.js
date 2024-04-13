@@ -69,16 +69,19 @@ class userController {
 
             if(type == 'friends') {
                 const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
-                res.json({ error: false, items: friends });
+                const maxCount = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).countDocuments();
+                res.json({ error: false, items: friends, maxCount });
             }
             else if(type == 'requests') {
                 const me = await User.findOne({_id: id}, {friend_requests: 1});
                 const requests = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
-                res.json({ error: false, items: requests });
+                const maxCount = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).countDocuments();
+                res.json({ error: false, items: requests, maxCount });
             }
             else if(type == 'users') {
                 const users = await User.find({_id: {$ne: id}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
-                res.json({ error: false, items: users });
+                const maxCount = await User.find({_id: {$ne: id}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).countDocuments();
+                res.json({ error: false, items: users, maxCount });
             }
         }
         catch(e) {

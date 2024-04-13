@@ -45,7 +45,7 @@ export default function RightMenu(props) {
             <div className='sidemenu_items' onClick={closeMobile}>
                 <Link className='sidemenu_item' to='/'><div className='sidemenu_item_title'>Главная</div></Link>
                 <Link className='sidemenu_item' to='/groups'><div className='sidemenu_item_title'>Сообщества</div></Link>
-                <Link className='sidemenu_item' to='/friends'><div className='sidemenu_item_title'>Друзья</div></Link>
+                <Link className='sidemenu_item' to='/friends?page=friends'><div className='sidemenu_item_title'>Друзья</div></Link>
                 <Link className='sidemenu_item' to={`/profile/${id}`}><div className='sidemenu_item_title'>Профиль</div></Link>
                 <div className='sidemenu_item' onClick={signOut}><div className='sidemenu_item_title'>Выйти</div></div>
             </div>

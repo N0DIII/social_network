@@ -1,8 +1,8 @@
-const { Schema, model, ObjectId } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const Album = new Schema({
-    name: {type: String},
-    user: {type: ObjectId, ref: 'User'}
-})
+    name: String,
+    user: Schema.Types.ObjectId
+}, { versionKey: false })
 
 module.exports = model('Album', Album);

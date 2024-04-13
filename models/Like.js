@@ -1,8 +1,8 @@
-const { Schema, model, ObjectId } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const Like = new Schema({
-    post: {type: ObjectId, ref: 'Post'},
-    user: {type: ObjectId, ref: 'User'}
-})
+    post: Schema.Types.ObjectId,
+    user: Schema.Types.ObjectId
+}, { versionKey: false })
 
 module.exports = model('Like', Like);

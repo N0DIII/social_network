@@ -1,12 +1,12 @@
-const { Schema, model, ObjectId } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const Post = new Schema({
-    user: {type: ObjectId, ref: 'User'},
-    group: {type: ObjectId, ref: 'Group'},
-    text: {type: String},
-    created: {type: Date},
-    edit: {type: Boolean},
-    type: {type: String}
-})
+    user: Schema.Types.ObjectId,
+    group: Schema.Types.ObjectId,
+    text: String,
+    created: Date,
+    edit: Boolean,
+    type: String
+}, { versionKey: false })
 
 module.exports = model('Post', Post);

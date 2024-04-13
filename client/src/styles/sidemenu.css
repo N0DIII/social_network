@@ -10,6 +10,7 @@
 
 .rightmenu {transition: right 0.5s ease-in-out;}
 .leftmenu {transition: left 0.5s ease-in-out;}
+.sidemenu_items::-webkit-scrollbar {width: 0;}
 
 .sidemenu_image {
     position: fixed;
@@ -98,12 +99,15 @@
 
 .sidemenu_item_notify {
     position: absolute;
-    top: 30px;
     right: 5%;
-    width: 10px;
-    height: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: #4F52FF;
+    background: linear-gradient(70deg, #8551FF, #4753FF);
+    font-size: 18px;
 }
 
 .sidemenu_newChat_wrapper {
