@@ -13,7 +13,7 @@ const Search = require('./search').default;
 const AddPost = require('./add_post').default;
 
 export default function Profile(props) {
-    const { userData, setError, socket, setConfirm } = props;
+    const { userData, setError, socket, setConfirm, isMobile } = props;
     const navigate = useNavigate();
     const params = useParams();
     const { id } = params;
@@ -128,6 +128,11 @@ export default function Profile(props) {
         })
     }
 
+    function signOut() {
+        localStorage.setItem('token', '');
+        window.location.assign('/login');
+    }
+
     return(
         <div className='page' onScroll={scroll} onResize={scroll}>
             <div className='page_title'>
@@ -154,6 +159,7 @@ export default function Profile(props) {
                 {userData._id == id &&
                 <div className='profile_userdata_buttons'>
                     <Button title='Изменить' onclick={() => navigate(`/changeUserData/${userData._id}`)}/>
+                    {isMobile && <Button title='Выйти' onclick={signOut}/>}
                 </div>}
             </div>
 

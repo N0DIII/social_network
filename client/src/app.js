@@ -51,7 +51,7 @@ export default function App() {
     return(
         <BrowserRouter>
             <div className='App'>
-                {userData && userData.auth && isMobile && showMobileMenu && <MobileMenu id={userData._id}/>}
+                {userData._id && isMobile && showMobileMenu && <MobileMenu id={userData._id}/>}
                 {userData && !isMobile && <RightMenu id={userData._id} username={userData.username}/>}
                 {userData && !isMobile && <LeftMenu id={userData._id} socket={socket} setError={setError}/>}
                 <Error params={[error, setError]}/>
@@ -65,7 +65,7 @@ export default function App() {
                     <Route path='/login' element={<Login setUserData={setUserData}/>}/>
 
                     <Route path='/' element={<Main userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
-                    <Route path='/profile/:id' element={<Profile userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
+                    <Route path='/profile/:id' element={<Profile userData={userData} socket={socket} setError={setError} setConfirm={setConfirm} isMobile={isMobile}/>}/>
                     <Route path='/changeUserData/:id' element={<ChangeUserData userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
                     <Route path='/friends' element={<Friends userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
                     <Route path='/album/:id' element={<Album userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
