@@ -51,7 +51,7 @@ export default function App() {
     return(
         <BrowserRouter>
             <div className='App'>
-                {isMobile && showMobileMenu && <MobileMenu id={userData._id}/>}
+                {userData && isMobile && showMobileMenu && <MobileMenu id={userData._id}/>}
                 {userData && !isMobile && <RightMenu id={userData._id} username={userData.username}/>}
                 {userData && !isMobile && <LeftMenu id={userData._id} socket={socket} setError={setError}/>}
                 <Error params={[error, setError]}/>
