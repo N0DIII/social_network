@@ -44,13 +44,13 @@ export default function AlbumTitle(props) {
         return(
             <div className='album_title'>
                 <input ref={titleInput} type='text' value={name} disabled={true} onChange={e => setName(e.target.value)}/>
-                {isOwner && <img className='album_title_changeName' src='/images/pen.png' onClick={changeTitle}/>}
                 {isOwner &&
-                <div className='album_input_wrapper'>
-                    <div className='album_input_text'>Загрузить фото или видео</div>
-                    <input type='file' className='album_input' accept='image/*, video/*' onChange={loadFile}/>
-                    <div className='album_input_back1'></div>
-                    <div className='album_input_back2'></div>
+                <div className='album_title_creator'>
+                    <img className='album_title_changeName' src='/images/pen.png' onClick={changeTitle}/>
+                    <div className='album_input_wrapper'>
+                        <img className='album_input_cover' src='/images/plus.png'/>
+                        <input type='file' className='album_input' accept='image/*, video/*' onChange={loadFile}/>
+                    </div>
                 </div>}
             </div>
         )

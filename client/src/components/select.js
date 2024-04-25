@@ -1,10 +1,10 @@
 require('../styles/select.css');
 
 export default function Select(props) {
-    const { options, title, defaultValue, setValue } = props;
+    const { options, title, defaultValue = '', setValue, params = [] } = props;
 
     function onChange(e) {
-        setValue(e.target.options[e.target.selectedIndex].value);
+        setValue(e.target.options[e.target.selectedIndex].value, ...params);
     }
 
     return(

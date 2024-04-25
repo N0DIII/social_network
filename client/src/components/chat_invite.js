@@ -66,16 +66,20 @@ export default function ChatInvite(props) {
     return(
         <div className='chatInvite_wrapper' onScroll={throttle(scroll, 250)} onResize={throttle(scroll, 250)} style={style ? {top: '80px'} : {top: '-100vh'}}>
             <div className='chatInvite_button_wrapper'><div className='chatInvite_button'><Button title='Добавить' onclick={addUsers}/></div></div>
-            {users.length == 0 && <div className='chatInvite_noFriends'>Нет друзей</div>}
-            {users.map((user, i) =>
-                <div key={i} className='chatInvite_user' onClick={() => select(user)}>
-                    <div className='chatInvite_userData'>
-                        <img src={`${serverUrl}/users/${user._id}/avatar.png`}/>
-                        {user.username}
+            <div className='list_wrapper'>
+                {users.length == 0 && <div className='list_noResult'>Нет друзей</div>}
+                {users.map((user, i) =>
+                    <div key={i} className='list_item' onClick={() => select(user)}>
+                        <div className='list_item_avatar'>
+                            <img src={`${serverUrl}/users/${user._id}/avatar.png`}/>
+                        </div>
+                        <div className='list_item_name'>{user.username}</div>
+                        <div className='list_item_data'>
+                            {selectUsers.includes(user) && <img src='/images/checkMark.png'/>}
+                        </div>
                     </div>
-                    {selectUsers.includes(user) && <img src='/images/checkMark.png'/>}
-                </div>
-            )}
+                )}
+            </div>
         </div>
     )
 }

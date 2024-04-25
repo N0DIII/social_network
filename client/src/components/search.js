@@ -12,7 +12,7 @@ export default function Search(props) {
     }
 
     return(
-        <div className='search_wrapper'>
+        <div className='search_wrapper' title='Поиск'>
             <img src='/images/search.png'/>
             <input type='text' placeholder='Введите запрос' onChange={debouncedChange}/>
         </div>

@@ -7,7 +7,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 3500;
+    z-index: 6500;
 }
 
 .fullscreenImage_next:hover, .fullscreenImage_previous:hover, .fullscreenImage_close:hover {
@@ -42,5 +42,10 @@
 
     .fullscreenImage_next {
         right: 0;
+    }
+
+    .fullscreenImage_image {
+        width: 100%;
+        height: 100%;
     }
 }

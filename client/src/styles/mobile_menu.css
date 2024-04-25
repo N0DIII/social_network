@@ -1,0 +1,31 @@
+.mobileMenu_wrapper {
+    position: fixed;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    width: 100vw;
+    height: 70px;
+    background: rgb(28, 30, 39);
+    z-index: 6000;
+}
+
+.mobileMenu_item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    height: inherit;
+}
+
+.mobileMenu_item > img {
+    height: 60%;
+    padding: 2px;
+}
+
+.mobileMenu_item > div {
+    font-size: 12px;
+}
+
+.mobileMenu_avatar {
+    border-radius: 50%;
+}

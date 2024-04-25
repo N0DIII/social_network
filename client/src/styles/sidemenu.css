@@ -1,29 +1,23 @@
 .sidemenu_wrapper {
     position: absolute;
     top: 0;
-    width: 22.9vw;
+    width: 330px;
     height: 100vh;
     padding-top: 70px;
     background: #26282E;
     z-index: 3000;
 }
 
-.rightmenu {transition: right 0.5s ease-in-out;}
-.leftmenu {transition: left 0.5s ease-in-out;}
-.sidemenu_items::-webkit-scrollbar {width: 0;}
-
-.sidemenu_image {
-    position: fixed;
-    top: 0;
+.leftmenu {
+    padding: 0;
     left: 0;
-    height: 70px;
-    padding: 10px;
 }
 
-.sidemenu_image:hover {
-    cursor: pointer;
-    opacity: .8;
+.rightmenu {
+    right: 0;
 }
+
+.sidemenu_items::-webkit-scrollbar {width: 0;}
 
 .sidemenu_userdata {
     display: flex;
@@ -31,12 +25,8 @@
     top: 0;
     right: 0;
     width: inherit;
+    min-width: inherit;
     height: 70px;
-}
-
-.sidemenu_userdata:hover {
-    cursor: pointer;
-    opacity: .8;
 }
 
 .sidemenu_userdata_avatar {
@@ -120,23 +110,28 @@
     transition: opacity 0.2s ease-in-out;
 }
 
-.sidemenu_newChat_input {
+.sidemenu_newChat_form_wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     display: flex;
-    height: 50px;
+    align-items: center;
+    justify-content: center;
 }
 
-.sidemenu_newChat_input > img {
-    height: 100%;
-}
-
-.sidemenu_newChat_input > img:hover {
-    cursor: pointer;
-    opacity: 0.8;
+.sidemenu_newChat_form {
+    background: #26282E;
+    padding: 40px;
+    border-radius: 20px;
+    display: grid;
+    gap: 10px;
 }
 
 .sidemenu_newChat_button {
     position: absolute;
-    top: 0;
+    bottom: 0;
     width: 100%;
     padding: 0 20px;
 }
@@ -158,5 +153,9 @@
 
     .sidemenu_items {
         padding-bottom: 30vh;
+    }
+
+    .sidemenu_newChat_button {
+        bottom: 80px;
     }
 }

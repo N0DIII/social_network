@@ -9,17 +9,16 @@ const Button = require('./button.js').default;
 const Input = require('./input.js').default;
 
 export default function LeftMenu(props) {
-    const { id, socket, setError } = props;
+    const { id, socket } = props;
     const navigate = useNavigate();
 
-    const [style, setStyle] = useState({left: '0'});
     const [chats, setChats] = useState([]);
     const [showButton, setShowButton] = useState(false);
     const [startCreate, setStartCreate] = useState(false);
     const [newChatName, setNewChatName] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        if(localStorage.getItem('closeLeftMenu') == '1') setStyle({left: '-100vw'});
         server('/chat/getChats', { id }).then(result => setChats([...result.filter(chat => chat.notify != 0), ...result.filter(chat => chat.notify == 0)]));
     }, [])
 
@@ -60,28 +59,10 @@ export default function LeftMenu(props) {
         }
     }, [chats])
 
-    function closeMenu() {
-        if(style.left == '0') {
-            setStyle({left: '-100vw'});
-            localStorage.setItem('closeLeftMenu', '1');
-            document.querySelector('.page').classList.add('closeLeftMenu');
-        }
-        else {
-            setStyle({left: '0'});
-            localStorage.setItem('closeLeftMenu', '0');
-            document.querySelector('.page').classList.remove('closeLeftMenu');
-        }
-    }
-
-    function closeMobile() {
-        const isMobile = /Mobile|webOS|BlackBerry|IEMobile|MeeGo|mini|Fennec|Windows Phone|Android|iP(ad|od|hone)/i.test(navigator.userAgent);
-        if(isMobile) closeMenu();
-    }
-
     function createPublicChat() {
         socket.emit('createPublicChat', { user: id, name: newChatName });
         socket.on('createPublicChat', result => {
-            if(result.error) setError([true, result.message]);
+            if(result.error) setError(result.message);
             else {
                 setShowButton(false);
                 setStartCreate(false);
@@ -91,11 +72,10 @@ export default function LeftMenu(props) {
     }
 
     if(id != undefined) return(
-        <div className='sidemenu_wrapper leftmenu' style={style} onMouseEnter={() => setShowButton(true)} onMouseLeave={() => {setShowButton(false); setStartCreate(false)}}>
-            <img className='sidemenu_image' src='/images/menu.png' onClick={closeMenu}/>
+        <div className='sidemenu_wrapper leftmenu' onMouseEnter={() => setShowButton(true)} onMouseLeave={() => setShowButton(false)}>
             <div className='sidemenu_items'>
                 {chats.map((chat, i) => 
-                    <Link className='sidemenu_item' key={i} to={`/chat/${chat._id}`} onClick={closeMobile}>
+                    <Link className='sidemenu_item' key={i} to={`/chat/${chat._id}`}>
                         <div className='sidemenu_item_avatar'>
                             <img src={serverUrl + chat.avatar}/>
                             {chat.online && <div className='sidemenu_item_avatar_status'></div>}
@@ -106,11 +86,15 @@ export default function LeftMenu(props) {
                 )}
             </div>
             <div className='sidemenu_newChat_wrapper' style={showButton ? {opacity: '1'} : {opacity: '0'}}>
-                <div className='sidemenu_newChat_input'>
-                    <Input type='text' placeholder='Название' value={newChatName} setValue={setNewChatName}/>
-                    <img src='/images/checkMark.png' onClick={createPublicChat}/>
-                </div>
-                {!startCreate && <div className='sidemenu_newChat_button'><Button title='Создать групповой чат' onclick={() => setStartCreate(true)}/></div>}
+                <div className='sidemenu_newChat_button'><Button title='Создать групповой чат' onclick={() => setStartCreate(true)}/></div>
+                {startCreate &&
+                <div className='dataform_wrapper'>
+                    <div className='dataform'>
+                        <img className='dataform_close' src='/images/cross.png' onClick={() => {setStartCreate(false); setShowButton(false)}}/>
+                        <div className='dataform_input'><Input type='text' placeholder='Название' value={newChatName} setValue={setNewChatName} error={error}/></div>
+                        <div className='dataform_button'><Button title='Создать' onclick={createPublicChat}/></div>
+                    </div>
+                </div>}
             </div>
         </div>
     )

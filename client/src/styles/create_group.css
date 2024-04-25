@@ -1,0 +1,30 @@
+.createGroup_wrapper {
+    display: grid;
+    justify-content: center;
+    padding: 40px 0;
+    gap: 20px;
+}
+
+.createGroup_avatar {
+    width: 400px;
+    height: 400px;
+}
+
+.createGroup_description {
+    background: #353941;
+    border-radius: 20px;
+    padding: 10px 20px;
+}
+
+.createGroup_select {
+    background: #353941;
+    border-radius: 20px;
+}
+
+.createGroup_option {
+    padding: 10px 20px;
+}
+
+.createGroup_option_title {
+    color: #949AAF;
+}

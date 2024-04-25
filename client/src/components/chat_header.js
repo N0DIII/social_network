@@ -5,21 +5,29 @@ import buildFormatter from 'react-timeago/lib/formatters/buildFormatter';
 const formatter = buildFormatter(ruStrings);
 
 const { useState } = require('react');
+const { useNavigate } = require('react-router-dom');
 const serverUrl = require('../server_url.js');
 
 require('../styles/chat_header.css');
 
-const Button = require('./button.js').default;
 const ChangeChatdata = require('./change_chatdata.js').default;
 
 export default function ChatHeader(props) {
-    const { chat, id, showMenu, setShowMenu, invite } = props;
+    const { chat, id, showMenu, setShowMenu, invite, isMobile, showMobile } = props;
+    const navigate = useNavigate();
 
     const [showChange, setShowChange] = useState(false);
 
     function openMenu() {
-        if(showMenu?.left == '100vw') setShowMenu({left: '0'});
+        if(showMenu?.left == '100vw') setShowMenu({left: '5px'});
         else setShowMenu({left: '100vw'})
+    }
+
+    function back() {
+        if(isMobile) {
+            navigate('/chats');
+            showMobile(true);
+        }
     }
 
     if(chat == null) {
@@ -34,6 +42,7 @@ export default function ChatHeader(props) {
     else {
         return(
             <div className='chatHeader_wrapper'>
+                {isMobile && <img src='/images/leftArrow1.png' className='chatHeader_back' onClick={back}/>}
                 <img className='chatHeader_avatar' src={serverUrl + chat.avatar}/>
                 <div className='chatHeader_info'>
                     <div className='chatHeader_name'>{chat.name}</div>
@@ -57,6 +66,7 @@ export default function ChatHeader(props) {
                 <ChangeChatdata
                     id={chat._id}
                     chatName={chat.name}
+                    close={() => setShowChange(false)}
                 />}
             </div>
         )

@@ -47,7 +47,7 @@ export default function Messages(props) {
             <div className='messages_wrapper' onScroll={scroll} onResize={scroll}>
                 {items.map((item, i) => {
                     const showData = i == items.length - 1 || (i != items.length - 1 && items[i].created.split('T')[0] != items[i + 1].created.split('T')[0]) ? true : false;
-                    const showName = chat.type == 'public' && item.user != user && i != items.length - 1 && items[i].username != items[i + 1].username ? true : i == items.length - 1 ? true : false;
+                    const showName = chat.type != 'public' || item.user == user ? false : i != items.length - 1 && items[i].username != items[i + 1].username ? true : i == items.length - 1 ? true : false;
                     return(
                         <div className={`message_wrapper${item.user == user ? ' myMessage' : ''}${showData ? ' messageDate' : ''}`} key={i}>
                             {showData && <div className='message_date'>{getDate(item.created)}</div>}

@@ -12,7 +12,7 @@ const ChatMenu = require('./chat_menu').default;
 const ChatInvite = require('./chat_invite').default;
 
 export default function Chat(props) {
-    const { userData, socket, setError, setConfirm } = props;
+    const { userData, socket, setError, setConfirm, isMobile, showMobile } = props;
     const navigate = useNavigate();
     const params = useParams();
     const { id } = params;
@@ -34,8 +34,8 @@ export default function Chat(props) {
     useEffect(() => {
         if(!userData) return;
         if(!userData._id) return navigate('/login');
-        if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
-        if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
+
+        if(isMobile) showMobile(false);
 
         setNewMessage('');
         getChat(id);
@@ -125,7 +125,7 @@ export default function Chat(props) {
         close(false);
 
         if(e.target.files && e.target.files[0]) {
-            serverFile(url, { user: userData._id, chat: id }, e.target.files[0])
+            serverFile('/chat/' + url, { user: userData._id, chat: id }, [e.target.files[0]])
             .then(result => {
                 if(result.error) setError([true, result.message]);
                 else socket.emit('sendFile', result);
@@ -171,6 +171,8 @@ export default function Chat(props) {
                         setShowMenu={setShowChatMenu}
                         setError={setError}
                         invite={[showInvite, setShowInvite]}
+                        isMobile={isMobile}
+                        showMobile={showMobile}
                     />
                 </div>
 
@@ -210,6 +212,7 @@ export default function Chat(props) {
                     isEdit={isEdit}
                     sendMessage={sendMessage}
                     sendFile={sendFile}
+                    placeholder='Новое сообщение'
                 />
             </div>
         )

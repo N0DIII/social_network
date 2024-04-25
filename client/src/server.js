@@ -1,9 +1,9 @@
 const serverUrl = require('./server_url.js');
 
-const serverFile = async (url, data, file) => {
+const serverFile = async (url, data, file = []) => {
     const formData = new FormData();
 
-    if(file != undefined) formData.append('file', file);
+    file.forEach(item => formData.append('file', item));
     formData.append('json', JSON.stringify(data));
 
     return fetch(serverUrl + url, {method: 'post', body: formData})

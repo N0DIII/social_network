@@ -19,14 +19,13 @@ export default function Album(props) {
     useEffect(() => {
         if(!userData) return;
         if(!userData._id) return navigate('/login');
-        if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
-        if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
         server('/album/getAlbum', { id })
         .then(result => {
             if(!result.error) setAlbum(result.album);
             else setError([true, result.message]);
         })
+        
         server('/album/getPhotos', { id })
         .then(result => {
             if(!result.error) setPhotos(result.photos);
@@ -46,7 +45,7 @@ export default function Album(props) {
         if(e.target.files && e.target.files[0]) {
             setPhotos([...photos, { type: 'load' }]);
 
-            serverFile('/album/loadPhoto', { album: id, user: userData._id }, e.target.files[0])
+            serverFile('/album/loadPhoto', { album: id, user: userData._id }, [e.target.files[0]])
             .then(result => {
                 if(result.error) {
                     setError([true, result.message]);

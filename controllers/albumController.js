@@ -1,5 +1,5 @@
 const Album = require('../models/Album');
-const Photo = require('../models/Photo');
+const File = require('../models/File');
 const fs = require('fs');
 const multer  = require('multer');
 
@@ -82,7 +82,7 @@ class albumController {
             let albums = await Album.find({user: id});
             
             for(let i = 0; i < albums.length; i++) {
-                const cover = await Photo.findOne({album: albums[i]._id, type: 'image'});
+                const cover = await File.findOne({album: albums[i]._id, type: 'image'});
                 
                 let album = {_id: albums[i]._id, name: albums[i].name, user: albums[i].user, cover: cover == null ? null : `/users/${id}/albums/${cover.album}/${cover._id}.${getType(cover.name)}`};
                 albums[i] = album;
@@ -114,7 +114,7 @@ class albumController {
         try {
             const { id } = req.body;
 
-            let photos = await Photo.find({album: id}, {album: 0});
+            let photos = await File.find({album: id}, {album: 0});
 
             for(let i = 0; i < photos.length; i++) {
                 photos[i] = { _id: photos[i]._id, type: photos[i].type, src: `/users/${photos[i].user}/albums/${id}/${photos[i]._id}.${getType(photos[i].name)}` };
@@ -137,7 +137,7 @@ class albumController {
 
             let type = file.mimetype.split('/')[0] == 'image' ? 'image' : 'video';
     
-            const photo = await new Photo({album, type, user, name: file.originalname});
+            const photo = await new File({album, type, user, name: file.originalname});
     
             fs.rename(file.path, `./public/users/${user}/albums/${album}/${photo._id}.${getType(file.originalname)}`, async e => {
                 if(e) {
@@ -160,7 +160,7 @@ class albumController {
         try {
             const { src, id } = req.body;
 
-            await Photo.deleteOne({_id: id});
+            await File.deleteOne({_id: id});
             fs.unlink('./public' + src, e => {
                 if(e) {
                     console.log(e);

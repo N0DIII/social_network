@@ -6,6 +6,8 @@ const Post = new Schema({
     text: String,
     created: Date,
     edit: Boolean,
+    likeCount: { type: Number, default: 0 },
+    commentCount: { type: Number, default: 0 },
     type: String
 }, { versionKey: false })
 

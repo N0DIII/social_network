@@ -55,16 +55,16 @@
 
 @media(max-width: 800px) {
     .chatMenu_wrapper {
-        top: 140px;
+        top: 80px;
         width: 100vw;
-        height: calc(100vh - 150px);
+        height: calc(100vh - 90px);
     }
 
     .chatMenu_header_item {
         background-size: 100% 100%;
         width: 50px;
         height: 50px;
-        color: rgba(0, 0, 0, 0);
+        font-size: 0px;
         margin: 0 5px;
     }
 

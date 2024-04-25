@@ -8,3 +8,9 @@
     color: #949AAF;
     font-style: italic;
 }
+
+@media(max-width: 800px) {
+    .page {
+        padding: 80px 0 0 0;
+    }
+}

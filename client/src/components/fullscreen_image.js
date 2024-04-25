@@ -4,18 +4,26 @@ const serverUrl = require('../server_url.js');
 require('../styles/fullscreen_image.css');
 
 export default function FullscreenImage(props) {
-    const { selectImage, images, setShow } = props;
+    const { selectImage, images, setShow, index = -1 } = props;
 
     const [image, setImage] = useState(selectImage);
-    const [i, setI] = useState(0);
+    const [i, setI] = useState(index);
 
     useEffect(() => {
-        setI(images.indexOf(selectImage));
-
-        window.addEventListener('keydown', e => {
-            if(e.key == 'Escape') setShow(false);
-        })
+        if(index == -1) setI(images.indexOf(selectImage));
     }, [])
+
+    useEffect(() => {
+        window.addEventListener('keydown', keydown);
+
+        return () => window.removeEventListener('keydown', keydown);
+    }, [i])
+
+    function keydown(e) {
+        if(e.key == 'Escape') setShow(false);
+        if(e.key == 'ArrowRight') switching(1);
+        if(e.key == 'ArrowLeft') switching(-1);
+    }
 
     function switching(k) {
         if((i == 0 && k == -1) || (i == images.length - 1 && k == 1)) return;

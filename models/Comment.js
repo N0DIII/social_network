@@ -6,7 +6,10 @@ const Comment = new Schema({
     text: String,
     created: Date,
     edit: Boolean,
-    answer: Schema.Types.ObjectId
+    answer: Schema.Types.ObjectId,
+    type: String,
+    filename: String,
+    mimetype: String
 }, { versionKey: false })
 
 module.exports = model('Comment', Comment);

@@ -15,6 +15,8 @@ const authRouter = require('./routers/authRouter');
 const userRouter = require('./routers/userRouter');
 const albumRouter = require('./routers/albumRouter');
 const chatRouter = require('./routers/chatRouter');
+const groupRouter = require('./routers/groupRouter');
+const postRouter = require('./routers/postRouter');
 const PORT = process.env.PORT;
 
 const app = express();
@@ -31,10 +33,13 @@ app.use(bodyParser.json({limit: '500mb'}));
 app.use(express.static('public'));
 app.use(express.static('./client/build'));
 app.use(express.json());
+
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/album', albumRouter);
 app.use('/chat', chatRouter);
+app.use('/group', groupRouter);
+app.use('/post', postRouter);
 
 app.post('*', (req, res) => res.json({ error: true, message: 'Произошла ошибка'}));
 app.get('*', (req, res) => res.sendFile(__dirname + '/client/build/index.html'));

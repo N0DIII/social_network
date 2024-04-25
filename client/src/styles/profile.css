@@ -30,7 +30,6 @@
 .profile_albums_wrapper {
     display: grid;
     position: relative;
-    padding: 0 30px;
     width: 100%;
 }
 
@@ -44,7 +43,7 @@
     margin: 0 10px;
 }
 
-.profile_albums_addAlbumButton:hover {
+.profile_albums_addAlbumButton:hover, .profile_addPost:hover {
     cursor: pointer;
     opacity: .8;
 }
@@ -54,6 +53,18 @@
     gap: 20px;
     width: 100%;
     padding: 10px 40px;
+}
+
+.profile_posts_title {
+    display: flex;
+    margin: 10px 0;
+    height: 30px;
+    color: #949AAF;
+}
+
+.profile_addPost {
+    height: inherit;
+    margin: 0 10px;
 }
 
 @media(max-width: 800px) {
@@ -73,7 +84,7 @@
     }
 
     .profile_albums_addAlbum {
-        padding: 10px 0;
+        padding: 10px;
     }
 
     .profile_albums_wrapper {
@@ -82,5 +93,9 @@
 
     .profile_albums_title {
         padding: 0 20px;
+    }
+
+    .profile_posts_title {
+        margin: 10px;
     }
 }

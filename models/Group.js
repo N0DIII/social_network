@@ -3,8 +3,11 @@ const { Schema, model } = require('mongoose');
 const Group = new Schema({
     name: String,
     creator: Schema.Types.ObjectId,
+    admins: [Schema.Types.ObjectId],
     created: Date,
-    users: [Schema.Types.ObjectId]
+    description: String,
+    categories: [String],
+    users: { type: Number, default: 0 }
 }, { versionKey: false })
 
 module.exports = model('Group', Group);

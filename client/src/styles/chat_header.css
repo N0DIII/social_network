@@ -53,6 +53,11 @@
     height: 60%;
 }
 
+.chatHeader_back {
+    height: 40%;
+    padding: 0 10px;
+}
+
 @media(max-width: 800px) {
     .chatHeader_info {
         width: 35%;

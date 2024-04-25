@@ -9,8 +9,14 @@
 
 .album_title > input {
     background: rgba(0, 0, 0, 0);
-    width: 100%;
+    width: 80%;
     font-size: 30px;
+}
+
+.album_title_creator {
+    display: flex;
+    align-items: center;
+    height: 100%;
 }
 
 .album_title_changeName {
@@ -25,27 +31,23 @@
 
 .album_input_wrapper {
     position: relative;
-    padding: 10px;
-    margin: 0 10px;
-    border-radius: 20px;
-    min-width: 320px;
+    width: 50px;
+    height: 50px;
+    padding: 5px;
     overflow: hidden;
 }
 
-.album_input_text {
-    position: relative;
-    z-index: 999;
+.album_input_cover {
+    width: 40px;
+    height: 40px;
 }
 
-.album_input_back1, .album_input_back2, .album_input {
+.album_input {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-}
-
-.album_input {
     opacity: 0;
     cursor: pointer;
     z-index: 1000;
@@ -65,19 +67,4 @@
 
 .album_input_wrapper:hover .album_input_back1 {
     opacity: 1;
-}
-
-@media(max-width: 800px) {
-    .album_input_wrapper {
-        background-image: url('../../public/images/plus.png');
-        background-size: 100% 100%;
-        width: 50px;
-        height: 40px;
-        padding: 0;
-        min-width: 0;
-    }
-
-    .album_input_wrapper > div {
-        opacity: 0;
-    }
 }

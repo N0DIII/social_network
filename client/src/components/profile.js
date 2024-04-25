@@ -1,4 +1,4 @@
-const { useEffect, useState } = require('react');
+const { useEffect, useState, useCallback } = require('react');
 const { useNavigate, useParams } = require('react-router-dom');
 const serverUrl = require('../server_url.js');
 const { server } = require('../server.js');
@@ -8,6 +8,9 @@ require('../styles/profile.css');
 const Button = require('./button.js').default;
 const Input = require('./input.js').default;
 const Albumlist = require('./albumlist.js').default;
+const PostList = require('./postlist').default;
+const Search = require('./search').default;
+const AddPost = require('./add_post').default;
 
 export default function Profile(props) {
     const { userData, setError, socket, setConfirm } = props;
@@ -20,12 +23,20 @@ export default function Profile(props) {
     const [showAddAlbum, setShowAddAlbum] = useState(false);
     const [albumName, setAlbumName] = useState('');
     const [friendStatus, setFriendStatus] = useState(0);
+    
+    const [search, setSearch] = useState('');
+    const [showAddPost, setShowAddPost] = useState(false);
+    const [posts, setPosts] = useState(null);
+    const [edit, setEdit] = useState(false);
+    const [editedPost, setEditedPost] = useState({});
+
+    const [count, setCount] = useState(0);
+    const [maxCount, setMaxCount] = useState(1);
+    const [fetching, setFetching] = useState(false);
 
     useEffect(() => {
         if(!userData) return;
         if(!userData._id) return navigate('/login');
-        if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
-        if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
         server('/user/getUserData', { id: id, myId: userData._id })
         .then(result => {
@@ -41,7 +52,38 @@ export default function Profile(props) {
             if(!result.error) setAlbums(result.albums);
             else setError([true, result.message]);
         })
-    }, [userData, id])
+
+        setCount(0);
+        setMaxCount(1);
+        setPosts(null);
+        setFetching(true);
+    }, [userData, id, search])
+
+    useEffect(() => {
+        if(fetching) {
+            server('/post/getPosts', { user: userData._id, count, search, filter: ['user', id] })
+            .then(result => {
+                if(result.error) {
+                    setError([true, result.message]);
+                    return;
+                }
+                
+                if(count != 0) setPosts([...posts, ...result.posts]);
+                else setPosts(result.posts);
+
+                setCount(prevState => prevState + 1);
+                setMaxCount(result.maxCount);
+            })
+
+            setFetching(false);
+        }
+    }, [fetching])
+
+    const scroll = useCallback(e => {
+        if(e.target.scrollHeight - (Math.abs(e.target.scrollTop) + window.innerHeight) < 100 && posts.length < maxCount) {
+            setFetching(true);
+        }
+    }, [maxCount, posts])
 
     function getAge(date) {
         let nowDate = new Date();
@@ -49,7 +91,7 @@ export default function Profile(props) {
         let retDate = Math.trunc((nowDate - birthdayDate) / 31622400000);
         let lastNum = Number(String(retDate)[String(retDate).length - 1]);
 
-        return retDate + (lastNum > 0 && lastNum < 4 ? ' год' : ' лет');
+        return retDate + (lastNum > 0 && lastNum < 4 ? ' года' : ' лет');
     }
 
     function reqFriend(req) {
@@ -87,7 +129,11 @@ export default function Profile(props) {
     }
 
     return(
-        <div className='page page_noTitle'>
+        <div className='page' onScroll={scroll} onResize={scroll}>
+            <div className='page_title'>
+                <Search setValue={setSearch}/>
+            </div>
+
             <div className='profile_userdata'>
                 <img className='profile_avatar' src={`${serverUrl}/users/${id}/avatar.png`}/>
 
@@ -125,6 +171,31 @@ export default function Profile(props) {
 
                 <Albumlist items={albums} isOwner={userData._id == id ? true : false} deleteAlbum={deleteAlbum} setConfirm={setConfirm}/>
             </div>
+
+            {showAddPost &&
+            <AddPost
+                close={() => {setShowAddPost(false); setEdit(false)}}
+                user={userData._id}
+                setError={setError}
+                edit={edit}
+                post={editedPost}
+                type='user'
+            />}
+
+            <div className='profile_posts_title'>
+                Посты
+                {userData._id == id && <img className='profile_addPost' src='/images/plus.png' title='Написать пост' onClick={() => setShowAddPost(true)}/>}
+            </div>
+            <PostList
+                posts={posts}
+                setPosts={setPosts}
+                userID={userData._id}
+                setConfirm={setConfirm}
+                setError={setError}
+                setEdit={setEdit}
+                setShowAddPost={setShowAddPost}
+                setEditedPost={setEditedPost}
+            />
         </div>
     )
 }

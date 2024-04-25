@@ -6,32 +6,30 @@ export default function Friendslist(props) {
 
     if(items == null) {
         return(
-            <div className='friends_block'>
-                <div className='friends_block_item'>
-                    <div className='load_wrapper'>
-                        <div className='load_div'></div>
-                    </div>
+            <div className='list_wrapper'>
+                <div className='load_wrapper'>
+                    <div className='load_div'></div>
                 </div>
             </div>
         )
     }
     else if(items.length == 0) {
         return(
-            <div className='friends_block'>
-                <div className='friends_block_noResult'>Нет результатов</div>
+            <div className='list_wrapper'>
+                <div className='list_noResult'>Нет результатов</div>
             </div>
         )
     }
     else {
         return(
-            <div className='friends_block'>
+            <div className='list_wrapper'>
                 {items != null && items.map((item, i) =>
-                    <Link className='friends_block_item' key={i} to={`/profile/${item._id}`}>
-                        <div className='friends_block_item_avatar'>
+                    <Link className='list_item' key={i} to={`/profile/${item._id}`}>
+                        <div className='list_item_avatar'>
                             <img src={`${serverUrl}/users/${item._id}/avatar.png`}/>
-                            {item.online && <div className='friends_block_item_avatar_status'></div>}
+                            {item.online && <div className='list_item_avatar_status'></div>}
                         </div>
-                        <div className='friends_block_item_username'>{item.username}</div>
+                        <div className='list_item_name'>{item.username}</div>
                     </Link>
                 )}
             </div>

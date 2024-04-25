@@ -23,8 +23,6 @@ export default function Friends(props) {
     useEffect(() => {
         if(!userData) return;
         if(!userData._id) return navigate('/login');
-        if(localStorage.getItem('closeRightMenu') == '1') document.querySelector('.page').classList.add('closeRightMenu');
-        if(localStorage.getItem('closeLeftMenu') == '1') document.querySelector('.page').classList.add('closeLeftMenu');
 
         setItems(null);
         setFetching(true);
@@ -40,7 +38,7 @@ export default function Friends(props) {
             .then(result => {
                 if(!result.error) {
                     if(count != 0) setItems([...items, ...result.items]);
-                    else setTimeout(() => setItems(result.items), 500);
+                    else setItems(result.items);
 
                     setCount(prevState => prevState + 1);
                     setMaxCount(result.maxCount);
@@ -72,11 +70,7 @@ export default function Friends(props) {
                     <Link className='friends_navigate_item' to={`/friends?page=users`} style={searchParams.get('page') == 'users' ? {borderBottom: '3px solid #8551FF'} : {}}>Все пользователи</Link>
                 </div>
 
-                <div className='friends_items_wrapper' style={searchParams.get('page') == 'friends' ? {left: '0'} : searchParams.get('page') == 'requests' ? {left: '-100%'} : {left: '-200%'}}>
-                    <Friendslist items={items}/>
-                    <Friendslist items={items}/>
-                    <Friendslist items={items}/>
-                </div>
+                <Friendslist items={items}/>
             </div>
         </div>
     )
