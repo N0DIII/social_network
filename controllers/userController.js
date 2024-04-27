@@ -94,6 +94,9 @@ class userController {
         try {
             const { id, myId } = req.body;
 
+            const alreadyReq = await User.findOne({ _id: myId, friend_requests: id });
+            if(alreadyReq != null) return res.json({ error: false, status: 2 });
+
             await User.updateOne({_id: id}, {$push: {friend_requests: myId}});
 
             res.json({ error: false, status: 1 });
