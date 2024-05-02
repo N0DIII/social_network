@@ -13,7 +13,7 @@ require('../styles/chat_header.css');
 const ChangeChatdata = require('./change_chatdata.js').default;
 
 export default function ChatHeader(props) {
-    const { chat, id, showMenu, setShowMenu, invite, isMobile, showMobile } = props;
+    const { chat, id, showMenu, setShowMenu, invite, isMobile, showMobile, setError } = props;
     const navigate = useNavigate();
 
     const [showChange, setShowChange] = useState(false);
@@ -67,6 +67,7 @@ export default function ChatHeader(props) {
                     id={chat._id}
                     chatName={chat.name}
                     close={() => setShowChange(false)}
+                    setError={setError}
                 />}
             </div>
         )

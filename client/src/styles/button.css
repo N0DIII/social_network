@@ -9,6 +9,10 @@
     cursor: pointer;
 }
 
+.button_wrapper:active {
+    transform: scale(0.98);
+}
+
 .button_back_1, .button_back_2 {
     position: absolute;
     top: 0;

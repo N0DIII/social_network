@@ -11,6 +11,7 @@ const Albumlist = require('./albumlist.js').default;
 const PostList = require('./postlist').default;
 const Search = require('./search').default;
 const AddPost = require('./add_post').default;
+const ChangeUserData = require('./change_userdata.js').default;
 
 export default function Profile(props) {
     const { userData, setError, socket, setConfirm, isMobile } = props;
@@ -23,6 +24,7 @@ export default function Profile(props) {
     const [showAddAlbum, setShowAddAlbum] = useState(false);
     const [albumName, setAlbumName] = useState('');
     const [friendStatus, setFriendStatus] = useState(0);
+    const [showChange, setShowChange] = useState(false);
     
     const [search, setSearch] = useState('');
     const [showAddPost, setShowAddPost] = useState(false);
@@ -41,7 +43,7 @@ export default function Profile(props) {
         server('/user/getUserData', { id: id, myId: userData._id })
         .then(result => {
             if(!result.error) {
-                setUser({ username: result.user.username, birthday: result.user?.birthday });
+                setUser(result.user);
                 setFriendStatus(result.friendStatus);
             }
             else navigate('/not_found');
@@ -52,12 +54,14 @@ export default function Profile(props) {
             if(!result.error) setAlbums(result.albums);
             else setError([true, result.message]);
         })
+    }, [userData, id])
 
+    useEffect(() => {
         setCount(0);
         setMaxCount(1);
         setPosts(null);
         setFetching(true);
-    }, [userData, id, search])
+    }, [search, id])
 
     useEffect(() => {
         if(fetching) {
@@ -143,7 +147,7 @@ export default function Profile(props) {
                 <img className='profile_avatar' src={`${serverUrl}/users/${id}/avatar.png`}/>
 
                 <div className='profile_userdata_info'>
-                    <div className='profile_userdata_username'>{user?.username}</div>
+                    <div className='profile_userdata_username'>{user?.username}{user?.sex != undefined ? `, ${user.sex}` : ''}</div>
                     {user?.birthday != undefined && <div className='profile_userdata_birthday'>{getAge(user.birthday)}</div>}
                 </div>
 
@@ -158,10 +162,18 @@ export default function Profile(props) {
 
                 {userData._id == id &&
                 <div className='profile_userdata_buttons'>
-                    <Button title='Изменить' onclick={() => navigate(`/changeUserData/${userData._id}`)}/>
+                    <Button title='Изменить' onclick={() => setShowChange(true)}/>
                     {isMobile && <Button title='Выйти' onclick={signOut}/>}
                 </div>}
             </div>
+
+            {showChange &&
+            <ChangeUserData
+                close={() => setShowChange(false)}
+                userData={userData}
+                setError={setError}
+                setConfirm={setConfirm}
+            />}
 
             <div className='profile_albums_wrapper'>
                 <div className='profile_albums_title'>

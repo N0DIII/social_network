@@ -1,5 +1,6 @@
 const { useEffect, useState } = require('react');
 const { BrowserRouter, Route, Routes } = require('react-router-dom');
+const { auth } = require('./auth.js');
 const url = require('./server_url.js');
 
 const { io } = require('socket.io-client');
@@ -7,6 +8,8 @@ const socket = io.connect(url);
 
 require('./styles/index.css');
 require('./styles/list.css');
+require('./styles/input.css');
+require('./styles/form.css');
 
 const RightMenu = require('./components/right_menu.js').default;
 const LeftMenu = require('./components/left_menu.js').default;
@@ -14,7 +17,6 @@ const Registration = require('./components/registration.js').default;
 const Login = require('./components/login.js').default;
 const Main = require('./components/main.js').default;
 const Profile = require('./components/profile.js').default;
-const ChangeUserData = require('./components/change_userdata.js').default;
 const Friends = require('./components/friends.js').default;
 const Album = require('./components/album.js').default;
 const Chat = require('./components/chat.js').default;
@@ -43,11 +45,6 @@ export default function App() {
         })
     }, [])
 
-    async function auth() {
-        return fetch(url + '/auth/authorization', {method: 'post', headers: {'Content-Type': 'application/json; charset=utf-8', 'authorization': localStorage.getItem('token')}})
-        .then(response => response.json())
-    }
-
     return(
         <BrowserRouter>
             <div className='App'>
@@ -61,12 +58,11 @@ export default function App() {
                     <Route path='/not_found' element={<NotFound/>}/>
                     {isMobile && <Route path='/chats' element={<LeftMenu id={userData._id} socket={socket} setError={setError}/>}/>}
 
-                    <Route path='/registration' element={<Registration setUserData={setUserData}/>}/>
-                    <Route path='/login' element={<Login setUserData={setUserData}/>}/>
+                    <Route path='/registration' element={<Registration setUserData={setUserData} setError={setError}/>}/>
+                    <Route path='/login' element={<Login setUserData={setUserData} setError={setError}/>}/>
 
                     <Route path='/' element={<Main userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
                     <Route path='/profile/:id' element={<Profile userData={userData} socket={socket} setError={setError} setConfirm={setConfirm} isMobile={isMobile}/>}/>
-                    <Route path='/changeUserData/:id' element={<ChangeUserData userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
                     <Route path='/friends' element={<Friends userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
                     <Route path='/album/:id' element={<Album userData={userData} socket={socket} setError={setError} setConfirm={setConfirm}/>}/>
                     <Route path='/chat/:id' element={<Chat userData={userData} socket={socket} setError={setError} setConfirm={setConfirm} isMobile={isMobile} showMobile={setShowMobileMenu}/>}/>

@@ -1,5 +1,6 @@
 const { useState, useEffect } = require('react');
 const { Link, useNavigate } = require('react-router-dom');
+const { useInput } = require('../hooks/useInput.js');
 const { server } = require('../server.js');
 const serverUrl = require('../server_url.js');
 
@@ -9,17 +10,27 @@ const Button = require('./button.js').default;
 const Input = require('./input.js').default;
 
 export default function LeftMenu(props) {
-    const { id, socket } = props;
+    const { id, socket, setError } = props;
     const navigate = useNavigate();
 
     const [chats, setChats] = useState([]);
     const [showButton, setShowButton] = useState(false);
     const [startCreate, setStartCreate] = useState(false);
-    const [newChatName, setNewChatName] = useState('');
-    const [error, setError] = useState('');
+    const newChatName = useInput('');
 
     useEffect(() => {
         server('/chat/getChats', { id }).then(result => setChats([...result.filter(chat => chat.notify != 0), ...result.filter(chat => chat.notify == 0)]));
+
+        const keydown = e => {
+            if(e.key == 'Escape') {
+                setStartCreate(false); 
+                setShowButton(false);
+            }
+        }
+
+        window.addEventListener('keydown', keydown);
+
+        return () => window.removeEventListener('keydown', keydown);
     }, [])
 
     useEffect(() => {
@@ -60,9 +71,9 @@ export default function LeftMenu(props) {
     }, [chats])
 
     function createPublicChat() {
-        socket.emit('createPublicChat', { user: id, name: newChatName });
+        socket.emit('createPublicChat', { user: id, name: newChatName.value });
         socket.on('createPublicChat', result => {
-            if(result.error) setError(result.message);
+            if(result.error) setError([true, result.message]);
             else {
                 setShowButton(false);
                 setStartCreate(false);
@@ -91,7 +102,7 @@ export default function LeftMenu(props) {
                 <div className='dataform_wrapper'>
                     <div className='dataform'>
                         <img className='dataform_close' src='/images/cross.png' onClick={() => {setStartCreate(false); setShowButton(false)}}/>
-                        <div className='dataform_input'><Input type='text' placeholder='Название' value={newChatName} setValue={setNewChatName} error={error}/></div>
+                        <div className='dataform_input'><Input { ...newChatName } placeholder='Название'/></div>
                         <div className='dataform_button'><Button title='Создать' onclick={createPublicChat}/></div>
                     </div>
                 </div>}

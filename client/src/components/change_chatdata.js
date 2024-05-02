@@ -1,5 +1,6 @@
 const { useState, useEffect } = require('react');
 const { server } = require('../server');
+const { useInput } = require('../hooks/useInput.js');
 const serverUrl = require('../server_url.js');
 
 require('../styles/change_chatdata.css');
@@ -9,20 +10,27 @@ const Input = require('./input').default;
 const Button = require('./button').default;
 
 export default function ChangeChatdata(props) {
-    const { id, chatName, close } = props;
+    const { id, chatName, close, setError } = props;
 
     const [avatar, setAvatar] = useState('');
-    const [name, setName] = useState('');
-    const [error, setError] = useState('');
+    const name = useInput('');
 
     useEffect(() => {
-        setName(chatName);
+        name.onChange({ target: { value: chatName } });
+
+        const keydown = e => {
+            if(e.key == 'Escape') close();
+        }
+
+        window.addEventListener('keydown', keydown);
+
+        return () => window.removeEventListener('keydown', keydown);
     }, [chatName])
 
     function changeData() {
-        server('/chat/editChat', { chat: id, name, avatar })
+        server('/chat/editChat', { chat: id, name: name.value, avatar })
         .then(result => {
-            if(result.error) setError(result.message);
+            if(result.error) setError([true, result.message]);
             else window.location.reload();
         })
     }
@@ -35,7 +43,7 @@ export default function ChangeChatdata(props) {
                     <LoadAvatar src={`${serverUrl}/chats/${id}/avatar.png`} setAvatarUrl={setAvatar}/>
                 </div>
                 <div className='dataform_input'>
-                    <Input type='text' placeholder='Название' value={name} setValue={setName} error={error}/>
+                    <Input { ...name } placeholder='Название'/>
                 </div>
                 <div className='dataform_button'>
                     <Button title='Сохранить' onclick={changeData}/>

@@ -13,21 +13,21 @@ class groupController {
         try {
             const { avatar, name, categories, description, creator } = req.body;
 
-            if(name.trim() == '') return res.json({ nameError: true, message: 'Название не может быть пустым' });
-            if(name.length > 30) return res.json({ nameError: true, message: 'Название не может быть длиннее 30 символов' });
+            if(name.trim() == '') return res.json({ error: true, message: 'Название не может быть пустым' });
+            if(name.length > 30) return res.json({ error: true, message: 'Название не может быть длиннее 30 символов' });
 
             const isGroup = await Group.findOne({ name }, { _id: 1 });
-            if(isGroup != null) return res.json({ nameError: true, message: 'Сообщество с таким названием уже существует' });
+            if(isGroup != null) return res.json({ error: true, message: 'Сообщество с таким названием уже существует' });
 
             const group = new Group({ name, categories, description, creator, admins: [creator], created: new Date() });
             await fs.mkdirSync(`./public/groups/${group._id}`);
 
             if(avatar != undefined) {
                 let buff = new Buffer.from(avatar.split(',')[1], 'base64').toString('binary');
-                await fs.writeFileSync(`./public/groups/${group._id}/avatar.png`, buff, 'binary');
+                fs.writeFileSync(`./public/groups/${group._id}/avatar.png`, buff, 'binary');
             }
             else {
-                await fs.copyFile('./src/defaultGroup.png', `./public/groups/${group._id}/avatar.png`, e => {if(e) console.log(e)});
+                fs.copyFileSync('./src/defaultGroup.png', `./public/groups/${group._id}/avatar.png`);
             }
 
             await group.save();
@@ -148,11 +148,11 @@ class groupController {
         try {
             const { id, avatar, name, description, categories } = req.body;
 
-            if(name.trim() == '') return res.json({ nameError: true, message: 'Название не может быть пустым' });
-            if(name.length > 30) return res.json({ nameError: true, message: 'Название не может быть длиннее 30 символов' });
+            if(name.trim() == '') return res.json({ error: true, message: 'Название не может быть пустым' });
+            if(name.length > 30) return res.json({ error: true, message: 'Название не может быть длиннее 30 символов' });
 
             const isGroup = await Group.findOne({ name }, { _id: 1 });
-            if(isGroup != null && isGroup._id != id) return res.json({ nameError: true, message: 'Сообщество с таким названием уже существует' });
+            if(isGroup != null && isGroup._id != id) return res.json({ error: true, message: 'Сообщество с таким названием уже существует' });
 
             await Group.updateOne({ _id: id }, { $set: { name, description, categories } });
 

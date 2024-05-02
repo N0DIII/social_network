@@ -1,5 +1,6 @@
 const { useState, useEffect } = require('react');
 const { server } = require('../server');
+const { useInput } = require('../hooks/useInput.js');
 const serverUrl = require('../server_url');
 
 const LoadAvatar = require('./load_avatar').default;
@@ -12,12 +13,19 @@ export default function ChangeGroupData(props) {
     const [avatar, setAvatar] = useState();
     const [categories, setCategories] = useState([]);
     const [selectCategories, setSelectCategories] = useState(select);
-    const [name, setName] = useState(curName);
-    const [nameError, setNameError] = useState('');
-    const [description, setDescription] = useState(curDescription);
+    const name = useInput(curName);
+    const description = useInput(curDescription);
 
     useEffect(() => {
         server('/group/getCategories').then(result => setCategories(result));
+
+        const keydown = e => {
+            if(e.key == 'Escape') close();
+        }
+
+        window.addEventListener('keydown', keydown);
+
+        return () => window.removeEventListener('keydown', keydown);
     }, [])
 
     function selectChange(e) {
@@ -27,10 +35,9 @@ export default function ChangeGroupData(props) {
     }
 
     function editGroup() {
-        server('/group/editGroup', { id, avatar, name, description, categories: selectCategories })
+        server('/group/editGroup', { id, avatar, name: name.value, description: description.value, categories: selectCategories })
         .then(result => {
             if(result.error) setError([true, result.message]);
-            else if(result.nameError) setNameError(result.message);
             else window.location.reload();
         })
     }
@@ -42,12 +49,12 @@ export default function ChangeGroupData(props) {
                 <div className='dataform_avatar'>
                     <LoadAvatar src={`${serverUrl}/groups/${id}/avatar.png`} setAvatarUrl={setAvatar}/>
                 </div>
-                <div className='dataform_input'><Input type='text' placeholder='Название' value={name} setValue={setName} error={nameError}/></div>
+                <div className='dataform_input'><Input { ...name } placeholder='Название'/></div>
                 <select className='dataform_select' multiple value={selectCategories} onChange={selectChange}>
                     <option className='dataform_option dataform_option_title' disabled>Категории</option>
                     {categories.map((category, i) =>  <option key={i} className='dataform_option' value={category._id}>{category._id}</option>)}
                 </select>
-                <textarea className='dataform_textarea' value={description} onChange={e => setDescription(e.target.value)} maxLength={200} placeholder='Описание'></textarea>
+                <textarea className='dataform_textarea' { ...description } maxLength={200} placeholder='Описание'></textarea>
                 <div className='dataform_button'><Button title='Сохранить' onclick={editGroup}/></div>
             </div>
         </div>

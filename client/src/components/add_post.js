@@ -1,5 +1,5 @@
 const { useState, useEffect } = require('react');
-const { server, serverFile } = require('../server');
+const { serverFile } = require('../server');
 
 const ImageInput = require('./image_input').default;
 const Button = require('./button').default;
@@ -10,6 +10,16 @@ export default function AddPost(props) {
     const [text, setText] = useState(edit ? post.text : '');
     const [images, setImages] = useState([]);
     const [deletedImages, setDeletedImages] = useState([]);
+
+    useEffect(() => {
+        const keydown = e => {
+            if(e.key == 'Escape') close();
+        }
+
+        window.addEventListener('keydown', keydown);
+
+        return () => window.removeEventListener('keydown', keydown);
+    }, [])
 
     function savePost() {
         if(!edit) {
