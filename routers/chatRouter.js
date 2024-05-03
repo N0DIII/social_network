@@ -13,5 +13,6 @@ router.post('/getFile', controller.getFile);
 router.post('/deleteChat', controller.deleteChat);
 router.post('/editChat', controller.editChat);
 router.post('/getMessages', controller.getMessages);
+router.post('/getMembers', controller.getMembers);
 
 module.exports = router;

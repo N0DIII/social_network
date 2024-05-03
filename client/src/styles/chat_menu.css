@@ -37,18 +37,22 @@
 }
 
 .chatMenu_header_button {
-    width: 50%;
-    max-width: 400px;
-    padding: 0 20px;
+    height: inherit;
+    padding: 10px;
+}
+
+.chatMenu_header_button:hover {
+    cursor: pointer;
+    opacity: 0.8;
 }
 
 .chatMenu_items {
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 40px;
     height: calc(100% - 70px);
-    width: 300%;
+    width: 400%;
     padding: 20px;
     transition: left 0.8s ease-in-out;
 }
@@ -75,4 +79,5 @@
     .picture {background-image: url('../../public/images/picture.png');}
     .video {background-image: url('../../public/images/video.png');}
     .file {background-image: url('../../public/images/file.png');}
+    .member {background-image: url('../../public/images/friend.png');}
 }

@@ -39,6 +39,11 @@ export default function ChatMenuList(props) {
                             <img src='/images/file.png'/>
                             {item.filename}
                         </a>}
+                        {type == 'member' &&
+                        <div className='chatMenu_itemlist_member'>
+                            <div className='list_item_avatar'><img src={`${serverUrl}/users/${item._id}/avatar.png`}/></div>
+                            <div className='list_item_name'>{item.username}</div>
+                        </div>}
                     </div>
                 )}
             </div>

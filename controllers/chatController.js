@@ -202,6 +202,20 @@ class chatController {
             res.json(false);
         }
     }
+
+    async getMembers(req, res) {
+        const { id } = req.body;
+
+        const users = await Chat.findOne({ _id: id }, { users: 1 });
+
+        let members = [];
+        for(let i = 0; i < users.users.length; i++) {
+            const user = await User.findOne({ _id: users.users[i] }, { username: 1 });
+            members.push(user);
+        }
+
+        res.json(members);
+    }
 }
 
 async function saveFile(req, res, type) {

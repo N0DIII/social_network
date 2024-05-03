@@ -33,3 +33,10 @@
     cursor: pointer;
     background: #353941;
 }
+
+.chatMenu_itemlist_member {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 80px;
+}
