@@ -69,9 +69,9 @@ class authController {
     
             const decodedData = jwt.verify(token, process.env.SECRET_KEY);
             const user = await User.findOne({ _id: decodedData.id }, { password: 0 });
+            if(!user || user.delete) return res.json({ auth: false });
 
-            if(user) return res.json(user);
-            else return res.json({ auth: false });
+            res.json(user);
         }
         catch(e) {
             return res.json({ auth: false });

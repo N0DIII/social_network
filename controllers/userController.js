@@ -143,6 +143,9 @@ class userController {
             const { id } = req.body;
 
             await User.updateOne({ _id: id }, { $set: { delete: true, online: false } });
+            fs.copyFileSync('./src/deleteAvatar.png', `./public/users/${id}/avatar.png`);
+
+            res.json({ error: false });
         }
         catch(e) {
             console.log(e);
