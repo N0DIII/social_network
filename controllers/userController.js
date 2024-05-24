@@ -35,8 +35,8 @@ class userController {
         try {
             const { id, avatar, username, sex, birthday } = req.body;
 
-            if(username && username.trim() == '') return res.json({field: 0, message: 'Имя пользователя не может быть пустым'});
-            if(username.length > 20) return res.json({field: 0, message: 'Имя пользователя не может быть длиннее 20 символов'});
+            if(username && username.trim() == '') return res.json({error: true, message: 'Имя пользователя не может быть пустым'});
+            if(username.length > 20) return res.json({error: true, message: 'Имя пользователя не может быть длиннее 20 символов'});
 
             if(username) await User.updateOne({_id: id}, {$set: {username}});
             if(sex != '') await User.updateOne({_id: id}, {$set: {sex}});
