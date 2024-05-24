@@ -134,12 +134,12 @@ class postController {
                 if(likePost != null) like = true;
 
                 if(findPosts[i]?.user != undefined) {
-                    const user = await User.findOne({ _id: findPosts[i].user }, { username: 1 });
-                    creator = { _id: user._id, name: user.username };
+                    const user = await User.findOne({ _id: findPosts[i].user }, { username: 1, avatar: 1 });
+                    creator = { _id: user._id, name: user.username, avatar: user.avatar };
                 }
                 else if(findPosts[i]?.group != undefined) {
-                    const group = await Group.findOne({ _id: findPosts[i].group }, { name: 1, admins: 1 });
-                    creator = { _id: group._id, name: group.name, admins: group.admins };
+                    const group = await Group.findOne({ _id: findPosts[i].group }, { name: 1, admins: 1, avatar: 1 });
+                    creator = { _id: group._id, name: group.name, admins: group.admins, avatar: group.avatar };
                 }
 
                 if(findPosts[i].type == 'text') posts.push({ ...findPosts[i]._doc, creator, like });

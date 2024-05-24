@@ -2,6 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const str_rand = require('../str_rand');
 require('dotenv').config();
 
 const generateAccessToken = (id) => {
@@ -24,13 +25,14 @@ class authController {
             if(candidate) return res.json({ error: true, message: 'Пользователь с таким именем уже существует' });
 
             const hashPassword = bcrypt.hashSync(password, 7);
+            const avatar = str_rand(10);
 
-            const user = new User({ username, password: hashPassword });
+            const user = new User({ username, password: hashPassword, avatar });
             await user.save();
 
             fs.mkdirSync(`./public/users/${user._id}`);
             fs.mkdirSync(`./public/users/${user._id}/albums`);
-            fs.copyFileSync('./src/defaultAvatar.png', `./public/users/${user._id}/avatar.png`);
+            fs.copyFileSync('./src/defaultAvatar.png', `./public/users/${user._id}/avatar_${avatar}.png`);
 
             const token = generateAccessToken(user._id);
             return res.json({ error: false, token });

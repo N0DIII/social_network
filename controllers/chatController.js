@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Message = require('../models/Message');
 const fs = require('fs');
 const multer  = require('multer');
+const str_rand = require('../str_rand');
 
 const storageConfig = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -161,20 +162,15 @@ class chatController {
             await Chat.updateOne({ _id: chat }, { $set: { name } });
 
             if(avatar != '') {
+                const name = str_rand(10);
                 let buff = new Buffer.from(avatar.split(',')[1], 'base64').toString('binary');
-                fs.writeFile(`./public/chats/${chat}/avatar.png`, buff, 'binary', e => {
-                    if(e) {
-                        console.log(e);
-                        res.json({ error: true, message: 'Произошла ошибка при изменении аватара' });
-                    }
-                    else {
-                        res.json({ error: false });
-                    }
-                })
+                fs.writeFileSync(`./public/chats/${chat}/avatar_${name}.png`, buff, 'binary');
+                const oldName = await Chat.findOne({ _id: chat }, { avatar: 1 });
+                fs.unlinkSync(`./public/chats/${chat}/avatar_${oldName.avatar}.png`);
+                await Chat.updateOne({ _id: chat }, { $set: { avatar: name } });
             }
-            else {
-                res.json({ error: false });
-            }
+
+            res.json({ error: false });
         }
         catch(e) {
             console.log(e);
@@ -252,13 +248,13 @@ async function formChat(chatID, userID) {
         let user;
         if(chat.users.length == 1) {
             user = await User.findOne({ _id: chat.leave[0] });
-            avatar = `/users/${chat.leave[0]}/avatar.png`;
+            avatar = `/users/${chat.leave[0]}/avatar_${user.avatar}.png`;
         }
         else {
             for(let i = 0; i < chat.users.length; i++) {
                 if(chat.users[i].toString() != userID) {
-                    user = await User.findOne({ _id: chat.users[i] }, { username: 1, online: 1, last_online: 1 });
-                    avatar = `/users/${chat.users[i]}/avatar.png`;
+                    user = await User.findOne({ _id: chat.users[i] }, { username: 1, online: 1, last_online: 1, avatar: 1 });
+                    avatar = `/users/${chat.users[i]}/avatar_${user.avatar}.png`;
                     break;
                 }
             }
@@ -270,7 +266,7 @@ async function formChat(chatID, userID) {
         users = user._id;
     }
     else if(type == 'public') {
-        avatar = `/chats/${chatID}/avatar.png`;
+        avatar = `/chats/${chatID}/avatar_${chat.avatar}.png`;
         name = chat.name;
         creator = chat.creator;
     }

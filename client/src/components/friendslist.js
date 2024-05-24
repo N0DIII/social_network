@@ -26,7 +26,7 @@ export default function Friendslist(props) {
                 {items != null && items.map((item, i) =>
                     <Link className='list_item' key={i} to={`/profile/${item._id}`}>
                         <div className='list_item_avatar'>
-                            <img src={`${serverUrl}/users/${item._id}/avatar.png`}/>
+                            <img src={`${serverUrl}/users/${item._id}/avatar_${item.avatar}.png`}/>
                             {item.online && <div className='list_item_avatar_status'></div>}
                         </div>
                         <div className='list_item_name'>{item.username}</div>

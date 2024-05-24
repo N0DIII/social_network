@@ -25,11 +25,11 @@ export default function Post(props) {
 
     useEffect(() => {
         if(item?.user != undefined) {
-            setAvatar(`${serverUrl}/users/${item.user}/avatar.png`);
+            setAvatar(`${serverUrl}/users/${item.creator._id}/avatar_${item.creator.avatar}.png`);
             setCreatorLink(`/profile/${item.user}`);
         }
         else if(item?.group != undefined) {
-            setAvatar(`${serverUrl}/groups/${item.group}/avatar.png`);
+            setAvatar(`${serverUrl}/groups/${item.creator._id}/avatar_${item.creator.avatar}.png`);
             setCreatorLink(`/group/${item.group}`);
         }
 

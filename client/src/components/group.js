@@ -125,7 +125,7 @@ export default function Group(props) {
                 </div>
 
                 <div className='group_info_wrapper'>
-                    <img className='group_avatar' src={`${serverUrl}/groups/${group._id}/avatar.png`}/>
+                    <img className='group_avatar' src={`${serverUrl}/groups/${group._id}/avatar_${group.avatar}.png`}/>
                     <div className='group_info'>
                         <div className='group_name'>{group.name}</div>
                         {group.categories.length != 0 && <div className='group_categories'>Категории: {group.categories.map((item, i) => <div key={i} className='group_category'>{item}</div>)}</div>}
@@ -154,6 +154,7 @@ export default function Group(props) {
                     curName={group.name}
                     curDescription={group.description}
                     setError={setError}
+                    avatarName={group.avatar}
                 />}
 
                 {showAddPost &&

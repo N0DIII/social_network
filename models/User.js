@@ -11,7 +11,8 @@ const User = new Schema({
     last_online: Date,
     delete: Boolean,
     notify: [{ chat: Schema.Types.ObjectId, count: Number }],
-    groups: [Schema.Types.ObjectId]
+    groups: [Schema.Types.ObjectId],
+    avatar: String,
 }, { versionKey: false })
 
 module.exports = model('User', User);

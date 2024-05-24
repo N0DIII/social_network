@@ -5,7 +5,8 @@ const Chat = new Schema({
     creator: Schema.Types.ObjectId,
     users: [Schema.Types.ObjectId],
     leave: [Schema.Types.ObjectId],
-    type: String
+    type: String,
+    avatar: String,
 }, { versionKey: false })
 
 module.exports = model('Chat', Chat);

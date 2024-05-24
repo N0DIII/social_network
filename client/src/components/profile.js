@@ -144,7 +144,7 @@ export default function Profile(props) {
             </div>
 
             <div className='profile_userdata'>
-                <img className='profile_avatar' src={`${serverUrl}/users/${id}/avatar.png`}/>
+                <img className='profile_avatar' src={`${serverUrl}/users/${id}/avatar_${user?.avatar}.png`}/>
 
                 <div className='profile_userdata_info'>
                     <div className='profile_userdata_username'>{user?.username}{user?.sex != undefined ? `, ${user.sex}` : ''}</div>

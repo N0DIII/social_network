@@ -68,6 +68,7 @@ export default function ChatHeader(props) {
                     chatName={chat.name}
                     close={() => setShowChange(false)}
                     setError={setError}
+                    avatarName={chat.avatar}
                 />}
             </div>
         )

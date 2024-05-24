@@ -1,12 +1,13 @@
 const fs = require('fs');
 const User = require('../models/User');
+const str_rand = require('../str_rand');
 
 class userController {
     async getUserData(req, res) {
         try {
             const { id, myId } = req.body;
 
-            const user = await User.findOne({_id: id}, {_id: 0, username: 1, birthday: 1, sex: 1, albums: 1, posts: 1});
+            const user = await User.findOne({_id: id}, {_id: 0, username: 1, birthday: 1, sex: 1, albums: 1, posts: 1, avatar: 1});
             if(!user || user.delete) return res.json({ error: true, message: 'Пользователь не найден' });
 
             let friendStatus = 3;
@@ -42,20 +43,15 @@ class userController {
             if(birthday.length != 0) await User.updateOne({_id: id}, {$set: {birthday}});
 
             if(avatar != undefined) {
+                const name = str_rand(10);
                 let buff = new Buffer.from(avatar.split(',')[1], 'base64').toString('binary');
-                fs.writeFile(`./public/users/${id}/avatar.png`, buff, 'binary', e => {
-                    if(e) {
-                        console.log(e);
-                        res.json({ error: true, message: 'Произошла ошибка при изменении аватара' });
-                    }
-                    else {
-                        res.json({ error: false });
-                    }
-                })
+                fs.writeFileSync(`./public/users/${id}/avatar_${name}.png`, buff, 'binary');
+                const oldName = await User.findOne({ _id: id }, { avatar: 1 });
+                fs.unlinkSync(`./public/users/${id}/avatar_${oldName.avatar}.png`);
+                await User.updateOne({ _id: id }, { $set: { avatar: name } });
             }
-            else {
-                res.json({ error: false });
-            }
+            
+            res.json({ error: false });
         }
         catch(e) {
             console.log(e);
@@ -68,19 +64,19 @@ class userController {
             const { id, count, search, type } = req.body;
 
             if(type == 'friends') {
-                const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
-                const maxCount = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).countDocuments();
+                const friends = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1, avatar: 1}).skip(count * 10).limit(10);
+                const maxCount = await User.find({_id: {$ne: id}, friends: id, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1, avatar: 1}).countDocuments();
                 res.json({ error: false, items: friends, maxCount });
             }
             else if(type == 'requests') {
                 const me = await User.findOne({_id: id}, {friend_requests: 1});
-                const requests = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
-                const maxCount = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).countDocuments();
+                const requests = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1, avatar: 1}).skip(count * 10).limit(10);
+                const maxCount = await User.find({_id: {$in: me.friend_requests}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1, avatar: 1}).countDocuments();
                 res.json({ error: false, items: requests, maxCount });
             }
             else if(type == 'users') {
-                const users = await User.find({_id: {$ne: id}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).skip(count * 10).limit(10);
-                const maxCount = await User.find({_id: {$ne: id}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1}).countDocuments();
+                const users = await User.find({_id: {$ne: id}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1, avatar: 1}).skip(count * 10).limit(10);
+                const maxCount = await User.find({_id: {$ne: id}, username: {$regex: search}, $or: [{delete: {$exists: false}}, {delete: false}]}, {_id: 1, username: 1, online: 1, avatar: 1}).countDocuments();
                 res.json({ error: false, items: users, maxCount });
             }
         }
@@ -142,8 +138,9 @@ class userController {
         try {
             const { id } = req.body;
 
-            await User.updateOne({ _id: id }, { $set: { delete: true, online: false } });
-            fs.copyFileSync('./src/deleteAvatar.png', `./public/users/${id}/avatar.png`);
+            const avatar = str_rand(10);
+            await User.updateOne({ _id: id }, { $set: { delete: true, online: false, avatar } });
+            fs.copyFileSync('./src/deleteAvatar.png', `./public/users/${id}/avatar_${avatar}.png`);
 
             res.json({ error: false });
         }

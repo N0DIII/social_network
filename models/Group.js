@@ -7,7 +7,8 @@ const Group = new Schema({
     created: Date,
     description: String,
     categories: [String],
-    users: { type: Number, default: 0 }
+    users: { type: Number, default: 0 },
+    avatar: String,
 }, { versionKey: false })
 
 module.exports = model('Group', Group);

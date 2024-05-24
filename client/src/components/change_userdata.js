@@ -55,7 +55,7 @@ export default function ChangeUserData(props) {
                 <img className='dataform_close' src='/images/cross.png' onClick={close}/>
 
                 <div className='dataform_avatar'>
-                    <LoadAvatar src={`${serverUrl}/users/${userData._id}/avatar.png`} setAvatarUrl={setAvatar}/>
+                    <LoadAvatar src={`${serverUrl}/users/${userData._id}/avatar_${userData.avatar}.png`} setAvatarUrl={setAvatar}/>
                 </div>
 
                 <div className='dataform_input'><Input { ...username } placeholder='Имя пользователя'/></div>

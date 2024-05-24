@@ -8,7 +8,7 @@ const Input = require('./input').default;
 const Button = require('./button').default;
 
 export default function ChangeGroupData(props) {
-    const { close, id, select, curName, curDescription, setError } = props;
+    const { close, id, select, curName, curDescription, setError, avatarName } = props;
 
     const [avatar, setAvatar] = useState();
     const [categories, setCategories] = useState([]);
@@ -47,7 +47,7 @@ export default function ChangeGroupData(props) {
             <div className='dataform'>
                 <img className='dataform_close' src='/images/cross.png' onClick={close}/>
                 <div className='dataform_avatar'>
-                    <LoadAvatar src={`${serverUrl}/groups/${id}/avatar.png`} setAvatarUrl={setAvatar}/>
+                    <LoadAvatar src={`${serverUrl}/groups/${id}/avatar_${avatarName}.png`} setAvatarUrl={setAvatar}/>
                 </div>
                 <div className='dataform_input'><Input { ...name } placeholder='Название'/></div>
                 <select className='dataform_select' multiple value={selectCategories} onChange={selectChange}>

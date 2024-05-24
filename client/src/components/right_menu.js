@@ -4,7 +4,7 @@ const serverUrl = require('../server_url.js');
 require('../styles/sidemenu.css');
 
 export default function RightMenu(props) {
-    const { id, username } = props;
+    const { id, username, avatar } = props;
 
     function signOut() {
         localStorage.setItem('token', '');
@@ -14,7 +14,7 @@ export default function RightMenu(props) {
     if(id != undefined) return(
         <div className='sidemenu_wrapper rightmenu'>
             <div className='sidemenu_userdata'>
-                <img className='sidemenu_userdata_avatar' src={`${serverUrl}/users/${id}/avatar.png`}/>
+                <img className='sidemenu_userdata_avatar' src={`${serverUrl}/users/${id}/avatar_${avatar}.png`}/>
                 <div className='sidemenu_userdata_username'>{username}</div>
             </div>
             <div className='sidemenu_items'>

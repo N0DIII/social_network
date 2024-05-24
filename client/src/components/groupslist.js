@@ -28,7 +28,7 @@ export default function GroupsList(props) {
                 {items.map((item, i) =>
                     <Link key={i} to={`/group/${item._id}`} className='list_item'>
                         <div className='list_item_avatar'>
-                            <img src={`${serverUrl}/groups/${item._id}/avatar.png`}/>
+                            <img src={`${serverUrl}/groups/${item._id}/avatar_${item.avatar}.png`}/>
                         </div>
                         <div className='list_item_name'>{item.name}</div>
                         <div className='list_item_data'>

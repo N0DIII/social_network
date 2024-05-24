@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const str_rand = require('./str_rand');
 require('dotenv').config();
 
 const User = require('./models/User');
@@ -120,7 +121,8 @@ io.on('connection', socket => {
                 return socket.emit('createPublicChat', { error: true, message: 'Произошла ошибка при создании чата' });
             }
             else {
-                await fs.copyFile('./src/defaultChat.png', `./public/chats/${chat._id}/avatar.png`, async e => {
+                const avatar = str_rand(10);
+                await fs.copyFile('./src/defaultChat.png', `./public/chats/${chat._id}/avatar_${avatar}.png`, async e => {
                     if(e) {
                         console.log(e);
                         return socket.emit('createPublicChat', { error: true, message: 'Произошла ошибка при создании чата' });
@@ -128,6 +130,7 @@ io.on('connection', socket => {
                     else {
                         await chat.save();
                         await User.updateOne({ _id: user }, { $push: { notify: { chat: chat._id, notify: 0 } } });
+                        await Chat.updateOne({ _id: chat._id }, { $set: { avatar }});
 
                         socket.join(chat._id.toString());
                         socket.emit('createdChat', chat._id);

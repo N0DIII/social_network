@@ -49,7 +49,7 @@ export default function App() {
         <BrowserRouter>
             <div className='App'>
                 {userData._id && isMobile && showMobileMenu && <MobileMenu id={userData._id}/>}
-                {userData && !isMobile && <RightMenu id={userData._id} username={userData.username}/>}
+                {userData && !isMobile && <RightMenu id={userData._id} username={userData.username} avatar={userData.avatar}/>}
                 {userData && !isMobile && <LeftMenu id={userData._id} socket={socket} setError={setError}/>}
                 <Error params={[error, setError]}/>
                 <Confirm confirm={[confirm, setConfirm]}/>

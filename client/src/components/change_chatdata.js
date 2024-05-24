@@ -10,7 +10,7 @@ const Input = require('./input').default;
 const Button = require('./button').default;
 
 export default function ChangeChatdata(props) {
-    const { id, chatName, close, setError } = props;
+    const { id, chatName, close, setError, avatarName } = props;
 
     const [avatar, setAvatar] = useState('');
     const name = useInput('');
@@ -40,7 +40,7 @@ export default function ChangeChatdata(props) {
             <div className='dataform'>
                 <img className='dataform_close' src='/images/cross.png' onClick={close}/>
                 <div className='dataform_avatar'>
-                    <LoadAvatar src={`${serverUrl}/chats/${id}/avatar.png`} setAvatarUrl={setAvatar}/>
+                    <LoadAvatar src={`${serverUrl}/${avatarName}`} setAvatarUrl={setAvatar}/>
                 </div>
                 <div className='dataform_input'>
                     <Input { ...name } placeholder='Название'/>

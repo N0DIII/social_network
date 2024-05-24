@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Group = require('../models/Group');
 const GroupCategories = require('../models/GroupCategories');
 const fs = require('fs');
+const str_rand = require('../str_rand');
 
 class groupController {
     async getCategories(req, res) {
@@ -19,15 +20,16 @@ class groupController {
             const isGroup = await Group.findOne({ name }, { _id: 1 });
             if(isGroup != null) return res.json({ error: true, message: 'Сообщество с таким названием уже существует' });
 
-            const group = new Group({ name, categories, description, creator, admins: [creator], created: new Date() });
+            const avatarName = str_rand(10);
+            const group = new Group({ name, categories, description, creator, admins: [creator], created: new Date(), avatar: avatarName });
             await fs.mkdirSync(`./public/groups/${group._id}`);
 
             if(avatar != undefined) {
                 let buff = new Buffer.from(avatar.split(',')[1], 'base64').toString('binary');
-                fs.writeFileSync(`./public/groups/${group._id}/avatar.png`, buff, 'binary');
+                fs.writeFileSync(`./public/groups/${group._id}/avatar_${avatarName}.png`, buff, 'binary');
             }
             else {
-                fs.copyFileSync('./src/defaultGroup.png', `./public/groups/${group._id}/avatar.png`);
+                fs.copyFileSync('./src/defaultGroup.png', `./public/groups/${group._id}/avatar_${avatarName}.png`);
             }
 
             await group.save();
@@ -157,13 +159,12 @@ class groupController {
             await Group.updateOne({ _id: id }, { $set: { name, description, categories } });
 
             if(avatar != undefined) {
+                const name = str_rand(10);
                 let buff = new Buffer.from(avatar.split(',')[1], 'base64').toString('binary');
-                await fs.writeFile(`./public/groups/${id}/avatar.png`, buff, 'binary', async e => {
-                    if(e) {
-                        console.log(e);
-                        return res.json({ error: true, message: 'Произошла ошибка при изменении аватара' });
-                    }
-                })
+                fs.writeFileSync(`./public/groups/${id}/avatar_${name}.png`, buff, 'binary');
+                const oldName = await Group.findOne({ _id: id }, { avatar: 1 });
+                fs.unlinkSync(`./public/groups/${id}/avatar_${oldName.avatar}.png`);
+                await Group.updateOne({ _id: id }, { $set: { avatar: name } });
             }
 
             res.json({ error: false });
