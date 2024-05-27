@@ -101,7 +101,7 @@ export default function Comments(props) {
                     <div key={i} className='comment_wrapper'>
                         <div className='comment_header'>
                             <Link className='comment_header_userdata' to={`/profile/${item.user._id}`}>
-                                <img className='comment_header_avatar' src={`${serverUrl}/users/${item.user._id}/avatar.png`}/>
+                                <img className='comment_header_avatar' src={`${serverUrl}/users/${item.user._id}/avatar_${item.user.avatar}.png`}/>
                                 <div className='comment_header_username'>{item.user.username}</div>
                             </Link>
                             <div className='comment_header_created'>{item?.edit ? 'изм. ' : ''}{getDate(item.created)}</div>

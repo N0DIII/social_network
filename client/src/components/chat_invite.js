@@ -71,7 +71,7 @@ export default function ChatInvite(props) {
                 {users.map((user, i) =>
                     <div key={i} className='list_item' onClick={() => select(user)}>
                         <div className='list_item_avatar'>
-                            <img src={`${serverUrl}/users/${user._id}/avatar.png`}/>
+                            <img src={`${serverUrl}/users/${user._id}/avatar_${user.avatar}.png`}/>
                         </div>
                         <div className='list_item_name'>{user.username}</div>
                         <div className='list_item_data'>

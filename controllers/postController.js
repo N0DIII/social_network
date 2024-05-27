@@ -223,7 +223,7 @@ class postController {
 
         let comments = await Comment.find({ post });
         for(let i = 0; i < comments.length; i++) {
-            const user = await User.findOne({ _id: comments[i].user }, { username: 1 });
+            const user = await User.findOne({ _id: comments[i].user }, { username: 1, avatar: 1 });
             comments[i] = { ...comments[i]._doc, user };
         }
 

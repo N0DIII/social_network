@@ -52,7 +52,7 @@ export default function GroupMembers(props) {
                     <div className='list_wrapper'>
                         {users.map((item, i) =>
                             <div key={i} className='list_item'>
-                                <div className='list_item_avatar'><img src={`${serverUrl}/users/${item._id}/avatar.png`}/></div>
+                                <div className='list_item_avatar'><img src={`${serverUrl}/users/${item._id}/avatar_${item.avatar}.png`}/></div>
                                 <div className='list_item_name'>{item.username}</div>
                                 <div className='list_item_data'>
                                     <div className='list_item_data_select'>

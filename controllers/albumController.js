@@ -44,15 +44,9 @@ class albumController {
         try {
             const { album, user } = req.body;
 
-            fs.rm(`./public/users/${user}/albums/${album}`, {recursive: true}, async e => {
-                if(e) {
-                    console.log(e);
-                    res.json({ error: true, message: 'Произошла ошибка при удалении альбома' });
-                } else {
-                    await Album.deleteOne({_id: album});
-                    res.json({ error: false });
-                }
-            })
+            fs.rmSync(`./public/users/${user}/albums/${album}`, {recursive: true});
+            await Album.deleteOne({_id: album});
+            res.json({ error: false });
         }
         catch(e) {
             console.log(e);
@@ -66,7 +60,7 @@ class albumController {
 
             let newName = name.trim() == '' ? 'Без названия' : name;
             await Album.updateOne({_id: id}, {$set: {name: newName}});
-            
+
             res.json({ error: false, title: newName });
         }
         catch(e) {
@@ -80,10 +74,10 @@ class albumController {
             const { id } = req.body;
 
             let albums = await Album.find({user: id});
-            
+
             for(let i = 0; i < albums.length; i++) {
                 const cover = await File.findOne({album: albums[i]._id, type: 'image'});
-                
+
                 let album = {_id: albums[i]._id, name: albums[i].name, user: albums[i].user, cover: cover == null ? null : `/users/${id}/albums/${cover.album}/${cover._id}.${getType(cover.name)}`};
                 albums[i] = album;
             }
@@ -132,13 +126,13 @@ class albumController {
         try {
             const { album, user } = JSON.parse(req.body.json);
             const file = req.file;
-    
+
             if(!file) return res.json({error: true, message: 'Неверный тип файла'});
 
             let type = file.mimetype.split('/')[0] == 'image' ? 'image' : 'video';
-    
+
             const photo = await new File({album, type, user, name: file.originalname});
-    
+
             fs.rename(file.path, `./public/users/${user}/albums/${album}/${photo._id}.${getType(file.originalname)}`, async e => {
                 if(e) {
                     console.log(e);

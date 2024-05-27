@@ -1,8 +1,34 @@
 const fs = require('fs');
 const User = require('../models/User');
 const str_rand = require('../str_rand');
+const multer  = require('multer');
+
+const storageConfig = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads');
+    }
+})
 
 class userController {
+    upload = multer({ storage: storageConfig });
+
+    async changeAvatar(req, res) {
+        try {
+            const { id } = JSON.parse(req.body.json);
+            const file = req.file;
+
+            const avatar = str_rand(10);
+            fs.renameSync(file.path, `./public/users/${id}/avatar_${avatar}.png`);
+            await User.updateOne({ _id: id }, { $set: { avatar } });
+
+            res.json({ error: false, avatar });
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true });
+        }
+    }
+
     async getUserData(req, res) {
         try {
             const { id, myId } = req.body;
@@ -50,7 +76,7 @@ class userController {
                 fs.unlinkSync(`./public/users/${id}/avatar_${oldName.avatar}.png`);
                 await User.updateOne({ _id: id }, { $set: { avatar: name } });
             }
-            
+
             res.json({ error: false });
         }
         catch(e) {

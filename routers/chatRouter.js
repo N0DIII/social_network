@@ -14,5 +14,6 @@ router.post('/deleteChat', controller.deleteChat);
 router.post('/editChat', controller.editChat);
 router.post('/getMessages', controller.getMessages);
 router.post('/getMembers', controller.getMembers);
+router.post('/changeAvatar', controller.upload.single('file'), controller.changeAvatar);
 
 module.exports = router;

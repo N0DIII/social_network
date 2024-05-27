@@ -66,6 +66,7 @@ io.on('connection', socket => {
     socket.on('online', async ({ id }) => {
         await User.updateOne({_id: id}, {online: true});
         socket.join(id);
+        console.log(socket.id, 'connect')
 
         const chats = await Chat.find({users: {$in: id}}, {_id: 1});
         chats.forEach(chat => {

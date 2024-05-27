@@ -12,5 +12,6 @@ router.post('/deleteGroup', controller.deleteGroup);
 router.post('/editGroup', controller.editGroup);
 router.post('/getMembers', controller.getMembers);
 router.post('/changeStatus', controller.changeStatus);
+router.post('/changeAvatar', controller.upload.single('file'), controller.changeAvatar);
 
 module.exports = router;

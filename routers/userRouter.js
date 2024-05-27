@@ -9,5 +9,6 @@ router.post('/deleteFriend', controller.deleteFriend);
 router.post('/addFriend', controller.addFriend);
 router.post('/acceptFriend', controller.acceptFriend);
 router.post('/deleteUser', controller.deleteUser);
+router.post('/changeAvatar', controller.upload.single('file'), controller.changeAvatar);
 
 module.exports = router;

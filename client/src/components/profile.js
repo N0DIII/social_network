@@ -1,5 +1,6 @@
 const { useEffect, useState, useCallback } = require('react');
 const { useNavigate, useParams } = require('react-router-dom');
+const { useInput } = require('../hooks/useInput.js');
 const serverUrl = require('../server_url.js');
 const { server } = require('../server.js');
 
@@ -22,10 +23,10 @@ export default function Profile(props) {
     const [user, setUser] = useState(null);
     const [albums, setAlbums] = useState(null);
     const [showAddAlbum, setShowAddAlbum] = useState(false);
-    const [albumName, setAlbumName] = useState('');
+    const albumName = useInput('');
     const [friendStatus, setFriendStatus] = useState(0);
     const [showChange, setShowChange] = useState(false);
-    
+
     const [search, setSearch] = useState('');
     const [showAddPost, setShowAddPost] = useState(false);
     const [posts, setPosts] = useState(null);
@@ -71,7 +72,7 @@ export default function Profile(props) {
                     setError([true, result.message]);
                     return;
                 }
-                
+
                 if(count != 0) setPosts([...posts, ...result.posts]);
                 else setPosts(result.posts);
 
@@ -107,7 +108,7 @@ export default function Profile(props) {
     }
 
     function addAlbum() {
-        server('/album/addAlbum', { id: id, name: albumName })
+        server('/album/addAlbum', { id: id, name: albumName.value })
         .then(result => {
             if(!result.error) {
                 setAlbums([...albums, result.album]);
@@ -181,9 +182,9 @@ export default function Profile(props) {
                     {userData._id == id && <img className='profile_albums_addAlbumButton' src={!showAddAlbum ? '/images/plus.png' : '/images/cross.png'} onClick={() => setShowAddAlbum(!showAddAlbum)}/>}
                 </div>
 
-                {showAddAlbum && 
+                {showAddAlbum &&
                 <div className='profile_albums_addAlbum'>
-                    <Input type='text' placeholder='Без названия' setValue={setAlbumName}/>
+                    <Input { ...albumName } placeholder='Без названия'/>
                     <Button title='Сохранить' onclick={addAlbum}/>
                 </div>}
 

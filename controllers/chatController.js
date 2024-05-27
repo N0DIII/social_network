@@ -27,16 +27,34 @@ const fileFilter = (req, file, cb) => {
 }
 
 class chatController {
-    uploadImage = multer({storage: storageConfig, fileFilter: imageFilter})
-    uploadVideo = multer({storage: storageConfig, fileFilter: videoFilter})
-    uploadFile = multer({storage: storageConfig, fileFilter: fileFilter})
+    uploadImage = multer({storage: storageConfig, fileFilter: imageFilter});
+    uploadVideo = multer({storage: storageConfig, fileFilter: videoFilter});
+    uploadFile = multer({storage: storageConfig, fileFilter: fileFilter});
+    upload = multer({ storage: storageConfig });
+
+    async changeAvatar(req, res) {
+        try {
+            const { id } = JSON.parse(req.body.json);
+            const file = req.file;
+
+            const avatar = str_rand(10);
+            fs.renameSync(file.path, `./public/chats/${id}/avatar_${avatar}.png`);
+            await Chat.updateOne({ _id: id }, { $set: { avatar } });
+
+            res.json({ error: false, avatar });
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true });
+        }
+    }
 
     async getChats(req, res) {
         try {
             const { id } = req.body;
 
             let chats = await Chat.find({ users: { $in: [id] } });
-            
+
             for(let i = 0; i < chats.length; i++) {
                 chats[i] = await formChat(chats[i]._id, id);
             }

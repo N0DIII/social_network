@@ -4,7 +4,7 @@ const serverUrl = require('../server_url.js');
 require('../styles/mobile_menu.css');
 
 export default function MobileMenu(props) {
-    const { id } = props;
+    const { id, avatar } = props;
 
     return(
         <div className='mobileMenu_wrapper'>
@@ -25,7 +25,7 @@ export default function MobileMenu(props) {
                 <div>Друзья</div>
             </Link>
             <Link className='mobileMenu_item' to={`/profile/${id}`}>
-                <img src={`${serverUrl}/users/${id}/avatar.png`} className='mobileMenu_avatar'/>
+                <img src={`${serverUrl}/users/${id}/avatar_${avatar}.png`} className='mobileMenu_avatar'/>
                 <div>Профиль</div>
             </Link>
         </div>

@@ -3,8 +3,34 @@ const Group = require('../models/Group');
 const GroupCategories = require('../models/GroupCategories');
 const fs = require('fs');
 const str_rand = require('../str_rand');
+const multer  = require('multer');
+
+const storageConfig = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads');
+    }
+})
 
 class groupController {
+    upload = multer({ storage: storageConfig });
+
+    async changeAvatar(req, res) {
+        try {
+            const { id } = JSON.parse(req.body.json);
+            const file = req.file;
+
+            const avatar = str_rand(10);
+            fs.renameSync(file.path, `./public/groups/${id}/avatar_${avatar}.png`);
+            await Group.updateOne({ _id: id }, { $set: { avatar } });
+
+            res.json({ error: false, avatar });
+        }
+        catch(e) {
+            console.log(e);
+            res.json({ error: true });
+        }
+    }
+
     async getCategories(req, res) {
         const categories = await GroupCategories.find();
         res.json(categories);
