@@ -38,7 +38,7 @@ app.get('/test', (req, res) => res.sendFile(__dirname + '/test/test.html'));
 
 const start = async () => {
     try {
-        const dir = ['./public', './public/chats', './public/groups', './public/posts', './public/users'];
+        const dir = ['./public', './uploads', './public/chats', './public/groups', './public/posts', './public/users'];
         for(let i = 0; i < dir.length; i++) {
             if(!fs.existsSync(dir[i])) fs.mkdirSync(dir[i]);
         }
