@@ -1,9 +1,11 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-const App = require('./app.js').default;
+import { Provider } from './components/context';
+import App from './app.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <App/>
+    <Provider>
+        <App />
+    </Provider>
 )

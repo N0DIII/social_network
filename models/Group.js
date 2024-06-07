@@ -1,13 +1,13 @@
 const { Schema, model } = require('mongoose');
 
 const Group = new Schema({
-    name: String,
+    name: { type: String, unique: true },
     creator: Schema.Types.ObjectId,
     admins: [Schema.Types.ObjectId],
     created: Date,
     description: String,
-    categories: [String],
-    users: { type: Number, default: 0 },
+    category: String,
+    userCount: { type: Number, default: 0 },
     avatar: String,
 }, { versionKey: false })
 

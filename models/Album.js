@@ -1,8 +1,9 @@
 const { Schema, model } = require('mongoose');
 
 const Album = new Schema({
-    name: String,
-    user: Schema.Types.ObjectId
+    name: { type: String, default: 'Без названия' },
+    user: Schema.Types.ObjectId,
+    files: [{ src: String, mimetype: String }]
 }, { versionKey: false })
 
 module.exports = model('Album', Album);

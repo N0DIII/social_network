@@ -6,8 +6,7 @@ const Message = new Schema({
     user: Schema.Types.ObjectId,
     created: Date,
     edit: Boolean,
-    type: String,
-    filename: String
+    files: [{ originalname: String, src: String, mimetype: String }]
 }, { versionKey: false })
 
 module.exports = model('Message', Message);

@@ -1,9 +1,10 @@
 export default function Input(props) {
-    const { value, onChange, placeholder } = props;
+    const { value, setValue, placeholder = '', error = '' } = props;
 
     return(
         <div className='input_wrapper'>
-            <input type='text' placeholder={placeholder} value={value} onChange={onChange}/>
+            <input value={value} onChange={e => setValue(e.target.value)} placeholder={placeholder} />
+            {error != '' && <div className='input_error'>{error}</div>}
         </div>
     )
 }

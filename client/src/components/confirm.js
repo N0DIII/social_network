@@ -1,23 +1,28 @@
-require('../styles/confirm.css');
+import { useContext } from 'react';
 
-const Button = require('./button.js').default;
+import { Context } from './context';
+import Button from './button';
 
-export default function Confirm(props) {
-    const { confirm } = props;
+export default function Confirm() {
+    const { confirm, setConfirm } = useContext(Context);
 
     function onClick() {
-        confirm[0][1](...confirm[0][2]);
-        confirm[1]([false, () => console.log('Вы подтвердили действие')]);
+        confirm[1](...confirm[2]);
+        close();
     }
 
-    if(confirm[0][0]) {
+    function close() {
+        setConfirm([false]);
+    }
+
+    if(confirm[0]) {
         return(
             <div className='confirm_wrapper'>
                 <div className='confirm_form'>
                     Вы уверены, что хотите продолжить?
                     <div className='confirm_buttons'>
-                        <Button title='Да' onclick={onClick}/>
-                        <Button title='Нет' onclick={() => confirm[1]([false, () => console.log('Вы подтвердили действие')])}/>
+                        <Button title='Да' onClick={onClick}/>
+                        <Button title='Нет' onClick={close}/>
                     </div>
                 </div>
             </div>
