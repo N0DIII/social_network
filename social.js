@@ -32,7 +32,6 @@ app.use(express.static('test'));
 app.use(express.static('./client/build'));
 app.use(express.json());
 
-app.post('*', (req, res) => res.json({ error: true, message: 'Произошла ошибка' }));
 app.get('*', (req, res) => res.sendFile(__dirname + '/client/build/index.html'));
 
 app.get('/test', (req, res) => res.sendFile(__dirname + '/test/test.html'));
