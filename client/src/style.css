@@ -1563,6 +1563,7 @@ img {user-select: none;}
 
 .message_files_image {
     width: 100%;
+    max-height: 400px;
     object-fit: contain;
 }
 
