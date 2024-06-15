@@ -734,12 +734,12 @@ app.post('/getPosts', async (req, res) => {
             maxCount = await Post.find({ $or: [{ creator: senderId }, { creator: { $in: userData.friends } }, { creator: { $in: userData.groups } }], text: { $regex: search } }).countDocuments();
 
             for(let i = 0; i < posts.length; i++) posts[i] = await formPost(posts[i], senderId);
+
+            const allPosts = await Post.find().sort({ likeCount: -1 });
+            maxCount += await Post.find().countDocuments();
+
+            for(let i = 0; i < allPosts.length; i++) posts.push(await formPost(allPosts[i], senderId));
         }
-
-        const allPosts = await Post.find().sort({ likeCount: -1 });
-        maxCount += await Post.find().countDocuments();
-
-        for(let i = 0; i < allPosts.length; i++) posts.push(await formPost(allPosts[i], senderId));
 
         res.json({ error: false, posts, maxCount });
     }
