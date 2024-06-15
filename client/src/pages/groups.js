@@ -5,8 +5,6 @@ import { server, serverFile } from '../server';
 import serverUrl from '../server_url';
 
 import { Context } from '../components/context';
-import LeftMenu from './left_menu';
-import RightMenu from './right_menu';
 import Input from '../components/input';
 import Button from '../components/button';
 import Search from '../components/search';
@@ -87,9 +85,6 @@ export default function Groups() {
                     <Link to={`/groups?page=all`} className={`list_nav_item${searchParams.get('page') == 'all' ? ' list_nav_item_select' : ''}`}>Все группы</Link>
                 </div>
             </div>
-
-            <RightMenu />
-            <LeftMenu />
 
             <div className='list_wrapper'>
                 {groups == null &&

@@ -6,8 +6,6 @@ import { server, serverFile } from '../server';
 import serverUrl from '../server_url';
 
 import { Context } from '../components/context';
-import RightMenu from './right_menu';
-import LeftMenu from './left_menu';
 import Input from '../components/input';
 import Button from '../components/button';
 import Search from '../components/search';
@@ -196,9 +194,6 @@ export default function Profile() {
             <div className='page_title'>
                 <Search setValue={setSearch} />
             </div>
-            
-            <RightMenu />
-            <LeftMenu />
             
             {id == userData._id &&
             <div className='profile_userdata'>

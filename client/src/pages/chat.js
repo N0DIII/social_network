@@ -8,8 +8,6 @@ import { server, serverFile } from '../server';
 import serverUrl from '../server_url';
 
 import { Context } from '../components/context';
-import RightMenu from './right_menu';
-import LeftMenu from './left_menu';
 import FilesInput from '../components/input_files';
 import Message from '../components/message';
 import LoadAvatar from '../components/load_avatar';
@@ -252,9 +250,6 @@ export default function Chat() {
                     </div>
                 </div>
             </div>
-
-            <RightMenu />
-            <LeftMenu />
 
             {messages.length != 0 && messages.map((message, i) => 
             <Message

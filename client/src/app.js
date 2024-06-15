@@ -18,6 +18,8 @@ import Album from './pages/album';
 import Friends from './pages/friends';
 import Groups from './pages/groups';
 import Chat from './pages/chat';
+import RightMenu from './pages/right_menu';
+import LeftMenu from './pages/left_menu';
 
 export default function App() {
     const { isSign } = useContext(Context);
@@ -43,6 +45,8 @@ export default function App() {
                     <Route path='/chat/:id' element={<Chat />} />
                 </Routes>}
 
+                {isSign && <LeftMenu />}
+                {isSign && <RightMenu />}
                 <Error />
                 <Confirm />
                 <Success />

@@ -5,8 +5,6 @@ import { server } from '../server';
 import serverUrl from '../server_url';
 
 import { Context } from '../components/context';
-import LeftMenu from './left_menu';
-import RightMenu from './right_menu';
 import Search from '../components/search';
 
 export default function Friends() {
@@ -60,9 +58,6 @@ export default function Friends() {
                     <Link to={`/friends?page=users`} className={`list_nav_item${searchParams.get('page') == 'users' ? ' list_nav_item_select' : ''}`}>Все пользователи</Link>
                 </div>
             </div>
-
-            <RightMenu />
-            <LeftMenu />
 
             <div className='list_wrapper'>
                 {users == null &&

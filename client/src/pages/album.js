@@ -5,8 +5,6 @@ import { server, serverFile } from '../server';
 import serverUrl from '../server_url';
 
 import { Context } from '../components/context';
-import RightMenu from './right_menu';
-import LeftMenu from './left_menu';
 
 export default function Album() {
     const { userData, setError, setSuccess, setConfirm, setFFiles, setSFFile, setFParams } = useContext(Context);
@@ -97,9 +95,6 @@ export default function Album() {
             <div className='page_title'>
                 <div className='album_name'>{name}</div>
             </div>}
-
-            <RightMenu />
-            <LeftMenu />
 
             <div className='album_wrapper'>
                 {files != null && files.length != 0 && files.map((file, i) =>

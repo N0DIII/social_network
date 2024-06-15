@@ -3,8 +3,6 @@ import { useState, useContext, useEffect, useCallback } from 'react';
 import { server } from '../server';
 
 import { Context } from '../components/context';
-import RightMenu from './right_menu';
-import LeftMenu from './left_menu';
 import Search from '../components/search';
 import Post from '../components/post';
 
@@ -54,9 +52,6 @@ export default function Posts() {
             <div className='page_title'>
                 <Search setValue={setSearch} />
             </div>
-
-            <RightMenu />
-            <LeftMenu />
 
             <div className='posts_wrapper'>
                 {posts == null &&

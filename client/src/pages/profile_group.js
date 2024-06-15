@@ -1,13 +1,10 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { Link } from 'react-router-dom';
 
 import { server, serverFile } from '../server';
 import serverUrl from '../server_url';
 
 import { Context } from '../components/context';
-import RightMenu from './right_menu';
-import LeftMenu from './left_menu';
 import Input from '../components/input';
 import Button from '../components/button';
 import Search from '../components/search';
@@ -150,9 +147,6 @@ export default function GroupProfile() {
             <div className='page_title'>
                 <Search setValue={setSearch} />
             </div>
-
-            <RightMenu />
-            <LeftMenu />
             
             <div className='profile_userdata'>
                 <img src={`${serverUrl}/groups/${id}/avatar/${group?.avatar}`} />
