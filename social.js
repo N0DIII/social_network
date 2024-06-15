@@ -712,36 +712,36 @@ app.post('/getPosts', async (req, res) => {
     try {
         const { userId, groupId, senderId, type, search, count } = req.body;
 
-        switch(type) {
-            case 'user': {
-                let posts = await Post.find({ creator: userId, text: { $regex: search } }).sort({ $natural: -1 }).skip(count * loadSize).limit(loadSize);
-                const maxCount = await Post.find({ creator: userId, text: { $regex: search } }).countDocuments();
+        let posts = [];
+        let maxCount = 0;
 
-                for(let i = 0; i < posts.length; i++) posts[i] = await formPost(posts[i], senderId);
+        if(type == 'user') {
+            posts = await Post.find({ creator: userId, text: { $regex: search } }).sort({ $natural: -1 }).skip(count * loadSize).limit(loadSize);
+            maxCount = await Post.find({ creator: userId, text: { $regex: search } }).countDocuments();
 
-                return res.json({ error: false, posts, maxCount });
-            }
-
-            case 'group': {
-                let posts = await Post.find({ creator: groupId, text: { $regex: search } }).sort({ $natural: -1 }).skip(count * loadSize).limit(loadSize);
-                const maxCount = await Post.find({ creator: groupId, text: { $regex: search } }).countDocuments();
-
-                for(let i = 0; i < posts.length; i++) posts[i] = await formPost(posts[i], senderId);
-
-                return res.json({ error: false, posts, maxCount });
-            }
-
-            case '': {
-                const userData = await User.findOne({ _id: senderId }, { friends: 1, groups: 1 });
-
-                let posts = await Post.find({ $or: [{ creator: senderId }, { creator: { $in: userData.friends } }, { creator: { $in: userData.groups } }], text: { $regex: search } }).sort({ $natural: -1 }).skip(count * loadSize).limit(loadSize);
-                const maxCount = await Post.find({ $or: [{ creator: senderId }, { creator: { $in: userData.friends } }, { creator: { $in: userData.groups } }], text: { $regex: search } }).countDocuments();
-
-                for(let i = 0; i < posts.length; i++) posts[i] = await formPost(posts[i], senderId);
-
-                return res.json({ error: false, posts, maxCount });
-            }
+            for(let i = 0; i < posts.length; i++) posts[i] = await formPost(posts[i], senderId);
         }
+        else if(type == 'group') {
+            posts = await Post.find({ creator: groupId, text: { $regex: search } }).sort({ $natural: -1 }).skip(count * loadSize).limit(loadSize);
+            maxCount = await Post.find({ creator: groupId, text: { $regex: search } }).countDocuments();
+
+            for(let i = 0; i < posts.length; i++) posts[i] = await formPost(posts[i], senderId);
+        }
+        else {
+            const userData = await User.findOne({ _id: senderId }, { friends: 1, groups: 1 });
+
+            posts = await Post.find({ $or: [{ creator: senderId }, { creator: { $in: userData.friends } }, { creator: { $in: userData.groups } }], text: { $regex: search } }).sort({ $natural: -1 }).skip(count * loadSize).limit(loadSize);
+            maxCount = await Post.find({ $or: [{ creator: senderId }, { creator: { $in: userData.friends } }, { creator: { $in: userData.groups } }], text: { $regex: search } }).countDocuments();
+
+            for(let i = 0; i < posts.length; i++) posts[i] = await formPost(posts[i], senderId);
+        }
+
+        const allPosts = await Post.find().sort({ likeCount: -1 });
+        maxCount += await Post.find().countDocuments();
+
+        for(let i = 0; i < allPosts.length; i++) posts.push(await formPost(allPosts[i], senderId));
+
+        res.json({ error: false, posts, maxCount });
     }
     catch(e) {
         console.log(e);
