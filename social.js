@@ -450,6 +450,7 @@ app.post('/createGroup', avatarUpload.single('file'), async (req, res) => {
 
         await group.save();
         await Group.updateOne({ _id: group._id }, { $set: { avatar } });
+        await User.updateOne({ _id: userId }, { $push: { groups: group._id } });
 
         res.json({ error: false, id: group._id });
     }

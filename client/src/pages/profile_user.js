@@ -186,6 +186,8 @@ export default function Profile() {
             if(result.error) setError([true, result.message]);
             else {
                 setShowCreatePost(false);
+                setText('');
+                setFiles([]);
                 setPosts(prevState => [result.post, ...prevState]);
             }
 
