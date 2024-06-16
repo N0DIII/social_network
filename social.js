@@ -736,10 +736,13 @@ app.post('/getPosts', async (req, res) => {
 
             for(let i = 0; i < posts.length; i++) posts[i] = await formPost(posts[i], senderId);
 
-            const allPosts = await Post.find().sort({ likeCount: -1 });
-            maxCount += await Post.find().countDocuments();
+            if(posts.length < 10) {
+                const c = count == 0 ? 0 : Math.ceil(Math.abs(maxCount - (count * loadSize)) / 10);
+                const allPosts = await Post.find().sort({ likeCount: -1 }).skip(c * loadSize).limit(loadSize);
+                maxCount += await Post.find().countDocuments();
 
-            for(let i = 0; i < allPosts.length; i++) posts.push(await formPost(allPosts[i], senderId));
+                for(let i = 0; i < allPosts.length; i++) posts.push(await formPost(allPosts[i], senderId));
+            }
         }
 
         res.json({ error: false, posts, maxCount });
