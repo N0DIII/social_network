@@ -1214,6 +1214,7 @@ img {user-select: none;}
 .post_text {
     padding: 10px 20px;
     word-break: break-all;
+    white-space: pre-wrap;
 }
 
 .post_text_showAll {
