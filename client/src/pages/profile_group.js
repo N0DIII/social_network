@@ -33,6 +33,7 @@ export default function GroupProfile() {
     const [showCreatePost, setShowCreatePost] = useState(false);
     const [files, setFiles] = useState([]);
     const [text, setText] = useState('');
+    const [blockCreate, setBlockCreate] = useState(false);
 
     const [count, setCount] = useState(0);
     const [maxCount, setMaxCount] = useState(1);
@@ -131,15 +132,24 @@ export default function GroupProfile() {
     }, [maxCount, posts])
 
     function createPost() {
+        setBlockCreate(true);
+
         serverFile('/createPost', { creator: id, text, type: 'group' }, files)
         .then(result => {
             if(result.error) setError([true, result.message]);
             else {
                 setShowCreatePost(false);
+                setText('');
+                setFiles([]);
                 setPosts(prevState => [result.post, ...prevState]);
             }
+
+            setBlockCreate(false);
         })
-        .catch(e => setError([true, 'Произошла ошибка']))
+        .catch(e => {
+            setError([true, 'Произошла ошибка']);
+            setBlockCreate(false);
+        })
     }
 
     return(
@@ -241,6 +251,8 @@ export default function GroupProfile() {
                     <textarea value={text} onChange={e => setText(e.target.value)} />
 
                     <Button title='Создать' onClick={createPost} />
+
+                    {blockCreate && <div className='dataform_block'></div>}
                 </div>
             </div>}
 
