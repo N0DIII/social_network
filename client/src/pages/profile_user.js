@@ -33,6 +33,7 @@ export default function Profile() {
     const [showAddAlbum, setShowAddAlbum] = useState(false);
     const [posts, setPosts] = useState(null);
     const [showCreatePost, setShowCreatePost] = useState(false);
+    const [blockCreate, setBlockCreate] = useState(false);
     const [files, setFiles] = useState([]);
     const [text, setText] = useState('');
 
@@ -178,6 +179,8 @@ export default function Profile() {
     }, [maxCount, posts])
 
     function createPost() {
+        setBlockCreate(true);
+
         serverFile('/createPost', { creator: userData._id, text, type: 'user' }, files)
         .then(result => {
             if(result.error) setError([true, result.message]);
@@ -185,8 +188,13 @@ export default function Profile() {
                 setShowCreatePost(false);
                 setPosts(prevState => [result.post, ...prevState]);
             }
+
+            setBlockCreate(false);
         })
-        .catch(e => setError([true, 'Произошла ошибка']))
+        .catch(e => {
+            setError([true, 'Произошла ошибка']);
+            setBlockCreate(false);
+        })
     }
 
     return(
@@ -310,6 +318,8 @@ export default function Profile() {
                     <textarea value={text} onChange={e => setText(e.target.value)} />
 
                     <Button title='Создать' onClick={createPost} />
+
+                    {blockCreate && <div className='dataform_block'></div>}
                 </div>
             </div>}
         </div>

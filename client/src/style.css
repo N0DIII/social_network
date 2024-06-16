@@ -775,6 +775,17 @@ img {user-select: none;}
     backdrop-filter: blur(30px);
 }
 
+.dataform_block {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: rgba(100, 100, 100, 0.4);
+    border-radius: 20px;
+    z-index: 1001;
+}
+
 .dataform_close {
     position: absolute;
     top: 0;
