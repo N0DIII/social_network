@@ -789,14 +789,14 @@ async function formPost(post, senderId) {
         case 'user': {
             const user = await User.findOne({ _id: post.creator }, { avatar: 1, username: 1 });
             const like = await Like.findOne({ post: post._id, user: senderId });
-            return { ...post._doc, creator: { _id: user._id, avatar: user.avatar, name: user.username, creator: senderId == post.creator }, like: like == null ? false : true };
+            return { ...post._doc, creator: { _id: user._id, avatar: user.avatar, name: user.username, creator: senderId == post.creator }, like: like == null ? false : true, key: str_rand(10) };
         }
 
         case 'group': {
             const group = await Group.findOne({ _id: post.creator }, { avatar: 1, name: 1, creator: 1, admins: 1 });
             const creator = group.creator == senderId || group.admins.includes(senderId);
             const like = await Like.findOne({ post: post._id, user: senderId });
-            return { ...post._doc, creator: { _id: group._id, avatar: group.avatar, name: group.name, creator }, like: like == null ? false : true };
+            return { ...post._doc, creator: { _id: group._id, avatar: group.avatar, name: group.name, creator }, like: like == null ? false : true, key: str_rand(10) };
         }
     }
 }
