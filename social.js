@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const str_rand = require('./str_rand');
 const multer  = require('multer');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 const loadSize = process.env.LOAD_SIZE;
 
@@ -53,6 +54,36 @@ const start = async () => {
 
 start();
 
+const transporter = nodemailer.createTransport({
+    service: 'yandex',
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASS
+    }
+})
+
+setInterval(() => {
+    let mails = JSON.parse(fs.readFileSync('mails.json'));
+    
+    for(let i = 0; i < mails.length; i++) {
+        if(new Date(mails[i].date) <= new Date()) mails.splice(i, 1);
+    }
+
+    fs.writeFileSync('mails.json', JSON.stringify(mails));
+}, 3600000)
+
+function validateEmail(email) {
+    try {
+        const regex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+        if(email.match(regex)) return true;
+        else return false;
+    }
+    catch(e) {
+        return false;
+    }
+}
+
 /* _____________Файлы_____________ */
 
 const storageConfig = multer.diskStorage({
@@ -94,10 +125,10 @@ app.post('/authorization', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
-        const user = await User.findOne({ username });
-        if(!user || user.delete) return res.json({ field: 0, message: `Пользователь ${username} не найден` });
+        const user = await User.findOne({ email });
+        if(!user || user.delete) return res.json({ field: 0, message: 'Пользователь не найден' });
 
         const validPassword = bcrypt.compareSync(password, user.password);
         if(!validPassword) return res.json({ field: 1, message: 'Введен неверный пароль' });
@@ -113,27 +144,30 @@ app.post('/login', async (req, res) => {
 
 app.post('/registration', avatarUpload.single('file'), async (req, res) => {
     try {
-        const { username, password, repeatPassword } = JSON.parse(req.body.json);
+        const { username, password, repeatPassword, email } = JSON.parse(req.body.json);
         const file = req.file;
 
         let errors = [];
 
         if(username.trim() == '') errors.push({ field: 0, message: 'Имя пользователя не может быть пустым' });
         else if(username.length > 40) errors.push({ field: 0, message: 'Имя пользователя не может быть длиннее 40 символов' });
-        else {
-            const candidate = await User.findOne({ username });
-            if(candidate) errors.push({ field: 0, message: 'Пользователь с таким именем уже существует' });
-        }
+
         if(password.length < 5) errors.push({ field: 1, message: 'Пароль должен быть длиннее 4 символов' });
         else if(password.length > 40) errors.push({ field: 1, message: 'Пароль не может быть длиннее 40 символов' });
         if(password != repeatPassword) errors.push({ field: 2, message: 'Пароли не совпадают' });
+
+        if(!validateEmail(email)) errors.push({ field: 3, message: 'Неверный формат почты' });
+        else {
+            const candidate = await User.findOne({ email });
+            if(candidate) errors.push({ field: 3, message: 'Пользователь с такой почтой уже существует' });
+        }
 
         if(errors.length != 0) return res.json({ error: true, errors });
 
         const hashPassword = bcrypt.hashSync(password, 7);
         const avatar = str_rand(10) + '.png';
 
-        const user = new User({ username, password: hashPassword, avatar });
+        const user = new User({ username, email, password: hashPassword, avatar });
         await user.save();
 
         fs.mkdirSync(`./public/users/${user._id}`);
@@ -209,7 +243,7 @@ app.post('/getUsers', async (req, res) => {
 
 app.post('/changeUser', avatarUpload.single('file'), async (req, res) => {
     try {
-        const { userId, username, sex, birthday, oldAvatar } = JSON.parse(req.body.json);
+        const { userId, username, sex, birthday, oldAvatar, email } = JSON.parse(req.body.json);
         const file = req.file;
 
         if(username != '') {
@@ -218,6 +252,14 @@ app.post('/changeUser', avatarUpload.single('file'), async (req, res) => {
 
             await User.updateOne({ _id: userId }, { $set: { username } });
         }
+
+        if(validateEmail(email)) {
+            const candidate = await User.findOne({ email });
+            if(candidate) return res.json({ error: true, message: 'Пользователь с такой почтой уже существует' });
+
+            await User.updateOne({ _id: userId }, { email, confirm: false });
+        }
+        else return res.json({ error: true, message: 'Неверный формат почты' });
 
         if(sex != '') {
             await User.updateOne({ _id: userId }, { $set: { sex } });
@@ -253,6 +295,79 @@ app.post('/deleteUser', async (req, res) => {
         fs.copyFileSync('./src/deleteAvatar.png', `./public/users/${userId}/avatar/${avatar}`);
         await User.updateOne({ _id: userId }, { $set: { delete: true, avatar } });
 
+        res.json({ error: false });
+    }
+    catch(e) {
+        console.log(e);
+        res.json({ error: true, message: 'Произошла ошибка' });
+    }
+})
+
+app.post('/getConfirmCode', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const code = str_rand(6);
+
+        const html = `
+            <div>
+                <h2>Код подтверждения электронной почты: </h2>
+                <h1>${code}</h1>
+            </div>
+        `
+
+        await transporter.sendMail({
+            from: `VolSocNet <${process.env.EMAIL}@yandex.ru>`,
+            to: email,
+            subject: 'VolSocNet Код подтверждения',
+            html: html
+        })
+
+        let mails = JSON.parse(fs.readFileSync('mails.json'));
+        const date = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours() + 1, new Date().getMinutes(), new Date().getSeconds());
+        
+        for(let i = 0; i < mails.length; i++) {
+            if(mails[i].email == email) mails.splice(i, 1);
+        }
+
+        mails.push({ email, code, date });
+        fs.writeFileSync('mails.json', JSON.stringify(mails));
+
+        res.json({ error: false });
+    }
+    catch(e) {
+        console.log(e);
+        res.json({ error: true, message: 'Произошла ошибка' });
+    }
+})
+
+app.post('/checkConfirmCode', async (req, res) => {
+    try {
+        const { email, code, userId } = req.body;
+
+        let mails = JSON.parse(fs.readFileSync('mails.json'));
+    
+        for(let i = 0; i < mails.length; i++) {
+            if(mails[i].email == email) {
+                if(new Date(mails[i].date) <= new Date()) {
+                    mails.splice(i, 1);
+                    return res.json({ error: true, message: 'Время действия кода истекло' });
+                }
+                else {
+                    if(mails[i].code != code) return res.json({ error: true, message: 'Код неверный' });
+                    else {
+                        mails.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+
+            if(i == mails.length - 1) return res.json({ error: true, message: 'Почта неверна' });
+        }
+
+        fs.writeFileSync('mails.json', JSON.stringify(mails));
+
+        await User.updateOne({ _id: userId }, { confirm: true });
         res.json({ error: false });
     }
     catch(e) {

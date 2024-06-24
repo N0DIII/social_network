@@ -11,19 +11,19 @@ export default function Login() {
     const { setError } = useContext(Context);
     const navigate = useNavigate();
 
-    const [username, setUsername] = useState('');
-    const [usernameError, setUsernameError] = useState('');
+    const [email, setEmail] = useState('');
+    const [emailError, setEmailError] = useState('');
     const [password, setPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
 
     function sign() {
-        setUsernameError(''); setPasswordError('');
+        setEmailError(''); setPasswordError('');
 
-        server('/login', { username, password })
+        server('/login', { email, password })
         .then(result => {
             if(result.error) setError([true, result.message]);
             else if(result.field != undefined) {
-                if(result.field == 0) setUsernameError(result.message);
+                if(result.field == 0) setEmailError(result.message);
                 else setPasswordError(result.message);
             }
             else {
@@ -39,7 +39,7 @@ export default function Login() {
             <div className='login'>
                 <div className='login_title'>Вход</div>
 
-                <Input value={username} setValue={setUsername} placeholder='Имя пользователя' error={usernameError} />
+                <Input value={email} setValue={setEmail} placeholder='Электронная почта' error={emailError} />
 
                 <Password value={password} setValue={setPassword} placeholder='Пароль' error={passwordError} />
 

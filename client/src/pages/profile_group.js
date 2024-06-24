@@ -243,6 +243,7 @@ export default function GroupProfile() {
 
             {showCreatePost &&
             <div className='dataform_wrapper'>
+                {userData.confirm &&
                 <div className='dataform'>
                     <img className='dataform_close' src='/images/cross.png' onClick={() => setShowCreatePost(false)} />
 
@@ -253,7 +254,15 @@ export default function GroupProfile() {
                     <Button title='Создать' onClick={createPost} />
 
                     {blockCreate && <div className='dataform_block'></div>}
-                </div>
+                </div>}
+
+                {!userData.confirm &&
+                <div className='dataform'>
+                    <img className='dataform_close' src='/images/cross.png' onClick={() => setShowCreatePost(false)} />
+
+                    <p>Подтвердите адрес электронной почты</p>
+                    <p>Профиль → Изменить</p>
+                </div>}
             </div>}
 
             {showChange &&

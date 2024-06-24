@@ -15,21 +15,24 @@ export default function Registration() {
     const [avatar, setAvatar] = useState('images/defaultAvatar.png');
     const [username, setUsername] = useState('');
     const [usernameError, setUsernameError] = useState('');
+    const [email, setEmail] = useState('');
+    const [emailError, setEmailError] = useState('');
     const [password, setPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
     const [repeatPasswordError, setRepeatPasswordError] = useState('');
 
     function reg() {
-        setUsernameError(''); setPasswordError(''); setRepeatPasswordError('');
+        setUsernameError(''); setPasswordError(''); setRepeatPasswordError(''); setEmailError('');
 
-        serverFile('/registration', { username, password, repeatPassword }, [avatar])
+        serverFile('/registration', { username, password, repeatPassword, email }, [avatar])
         .then(result => {
             if(result.error) {
                 if(result.errors != undefined) result.errors.forEach(error => {
                     if(error.field == 0) setUsernameError(error.message);
                     else if(error.field == 1) setPasswordError(error.message);
-                    else setRepeatPasswordError(error.message);
+                    else if(error.field == 2) setRepeatPasswordError(error.message);
+                    else if(error.field == 3) setEmailError(error.message);
                 })
                 else setError([true, result.message]);
             }
@@ -52,6 +55,8 @@ export default function Registration() {
 
                 <div className='reg_inputs'>
                     <Input value={username} setValue={setUsername} placeholder='Имя пользователя' error={usernameError} />
+
+                    <Input value={email} setValue={setEmail} placeholder='Электронная почта' error={emailError} />
 
                     <Password value={password} setValue={setPassword} placeholder='Пароль' error={passwordError} />
 

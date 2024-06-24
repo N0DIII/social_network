@@ -25,6 +25,7 @@ export default function Profile() {
     const [showChange, setShowChange] = useState(false);
     const [avatar, setAvatar] = useState('');
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [sex, setSex] = useState('');
     const [birthday, setBirthday] = useState('');
     const [friendStatus, setFriendStatus] = useState(0);
@@ -36,6 +37,8 @@ export default function Profile() {
     const [blockCreate, setBlockCreate] = useState(false);
     const [files, setFiles] = useState([]);
     const [text, setText] = useState('');
+    const [stage, setStage] = useState(0);
+    const [code, setCode] = useState('');
 
     const [count, setCount] = useState(0);
     const [maxCount, setMaxCount] = useState(1);
@@ -47,6 +50,7 @@ export default function Profile() {
             setUsername(userData.username);
             setSex(userData?.sex != undefined ? userData.sex : '');
             setBirthday(userData?.birthday != undefined ? userData.birthday.split('T')[0] : '');
+            setEmail(userData?.email);
         }
         else {
             server('/getUser', { userId: id })
@@ -86,11 +90,11 @@ export default function Profile() {
     }
 
     function editData() {
-        serverFile('/changeUser', { userId: userData._id, username, sex, birthday, oldAvatar: userData.avatar }, [avatar])
+        serverFile('/changeUser', { userId: userData._id, username, sex, birthday, oldAvatar: userData.avatar, email }, [avatar])
         .then(result => {
             if(result.error) setError([true, result.message]);
             else {
-                setUserData(prevState => { return { ...prevState, username, sex, birthday, avatar: result.avatar != undefined ? result.avatar : prevState.avatar } });
+                setUserData(prevState => { return { ...prevState, username, sex, birthday, avatar: result.avatar != undefined ? result.avatar : prevState.avatar, email, confirm: email == userData.email ? userData.confirm : false } });
                 setShowChange(false);
             }
         })
@@ -199,6 +203,23 @@ export default function Profile() {
         })
     }
 
+    function confirmEmail() {
+        if(stage == 0) {
+            server('/getConfirmCode', { email: userData.email })
+            .then(result => {
+                if(result.error) setError([true, result.message]);
+                else setStage(1);
+            })
+        }
+        else {
+            server('/checkConfirmCode', { email: userData.email, code, userId: userData._id })
+            .then(result => {
+                if(result.error) setError([true, result.message]);
+                else setUserData(prevState => { return { ...prevState, confirm: true } });
+            })
+        }
+    }
+
     return(
         <div className='page' onScroll={scroll} onResize={scroll}>
             <div className='page_title'>
@@ -296,6 +317,13 @@ export default function Profile() {
 
                     <Input value={username} setValue={setUsername} placeholder='Имя пользователя' />
 
+                    <Input value={email} setValue={setEmail} placeholder='Электронная почта' />
+
+                    {!userData.confirm && <div style={{ color: 'red', textShadow: 'none' }}>Электронная почта не подтверждена</div>}
+                    {userData.confirm && <div style={{ color: 'green', textShadow: 'none' }}>Электронная почта подтверждена</div>}
+                    {!userData.confirm && stage == 1 && <Input value={code} setValue={setCode} placeholder='Введите код' />}
+                    {!userData.confirm && <Button title={stage == 0 ? 'Получить код подтверждения' : 'Подтвердить'} onClick={confirmEmail} />}
+
                     <Select
                         title='Выберите пол'
                         setValue={setSex}
@@ -312,6 +340,7 @@ export default function Profile() {
 
             {showCreatePost &&
             <div className='dataform_wrapper'>
+                {userData.confirm &&
                 <div className='dataform'>
                     <img className='dataform_close' src='/images/cross.png' onClick={() => setShowCreatePost(false)} />
 
@@ -322,7 +351,15 @@ export default function Profile() {
                     <Button title='Создать' onClick={createPost} />
 
                     {blockCreate && <div className='dataform_block'></div>}
-                </div>
+                </div>}
+
+                {!userData.confirm &&
+                <div className='dataform'>
+                    <img className='dataform_close' src='/images/cross.png' onClick={() => setShowCreatePost(false)} />
+
+                    <p>Подтвердите адрес электронной почты</p>
+                    <p>Профиль → Изменить</p>
+                </div>}
             </div>}
         </div>
     )

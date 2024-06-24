@@ -1,8 +1,9 @@
 const { Schema, model } = require('mongoose');
 
 const User = new Schema({
-    username: { type: String, unique: true },
+    username: String,
     password: String,
+    email: { type: String, unique: true },
     sex: String,
     birthday: Date,
     friends: [Schema.Types.ObjectId],
@@ -13,6 +14,7 @@ const User = new Schema({
     notify: [{ chat: Schema.Types.ObjectId, count: Number }],
     groups: [Schema.Types.ObjectId],
     avatar: String,
+    confirm: { type: Boolean, default: false }
 }, { versionKey: false })
 
 module.exports = model('User', User);

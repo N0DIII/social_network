@@ -109,6 +109,7 @@ export default function Groups() {
 
             {showCreate &&
             <div className='dataform_wrapper'>
+                {userData.confirm &&
                 <div className='dataform'>
                     <img className='dataform_close' src='/images/cross.png' onClick={() => setShowCreate(false)} />
 
@@ -126,7 +127,15 @@ export default function Groups() {
                     <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder='Описание' />
 
                     <Button title='Создать' onClick={createGroup} />
-                </div>
+                </div>}
+
+                {!userData.confirm &&
+                <div className='dataform'>
+                    <img className='dataform_close' src='/images/cross.png' onClick={() => setShowCreate(false)} />
+
+                    <p>Подтвердите адрес электронной почты</p>
+                    <p>Профиль → Изменить</p>
+                </div>}
             </div>}
         </div>
     )

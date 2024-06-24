@@ -31,7 +31,7 @@
     border: none;
 }
 
-input, textarea, select {border: none;}
+input, textarea, select {border: none; text-shadow: none;}
 input:focus, textarea:focus, select:focus {outline: none;}
 input::placeholder, textarea::placeholder, .select {color: #949AAF; text-shadow: none;}
 img {user-select: none;}
